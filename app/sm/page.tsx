@@ -1,11 +1,7 @@
 import React from 'react'
 
 function SmPage() {
-	return (
-		<div>
-			
-		</div>
-	)
+	return <main>sds</main>
 }
 
 export default SmPage
