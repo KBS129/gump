@@ -2,7 +2,7 @@ import React from 'react'
 
 function DongPage() {
   return (
-    <div>DongPage</div>
+    <main>안녕</main>
   )
 }
 
