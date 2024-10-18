@@ -1,3 +1,7 @@
-export default function HomePage() {
-  return <div>Gump</div>;
+import React from "react";
+
+function HomePage() {
+  return <div>123</div>;
 }
+
+export default HomePage;
