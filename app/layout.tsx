@@ -1,18 +1,19 @@
-import React from 'react';
-import './globals.css';
+import React from "react";
+import "./globals.css";
+import { TanstackQueryProvider } from "@/tanstack-query/client";
 
 type RootLayoutProps = {
   children: React.ReactNode;
 };
 
-
-
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-		<html>
-		<body>
+    <html>
+      <body>
+      <TanstackQueryProvider>
       {children}
-		</body>
-		</html>
+      </TanstackQueryProvider>
+      </body>
+    </html>
   );
 }
