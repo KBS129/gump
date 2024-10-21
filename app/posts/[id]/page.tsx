@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/supabase";
+import Header from "@/components/Header";
 
 const PostDetailPage = () => {
     const router = useRouter();
@@ -137,6 +138,8 @@ const PostDetailPage = () => {
     if (error) return <p className="text-red-500">{error}</p>;
 
     return (
+			<>
+				<Header/>
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4">
             <h1 className="text-3xl font-semibold mb-6">{post.movie_name}</h1>
             <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
@@ -223,6 +226,7 @@ const PostDetailPage = () => {
                 {!user && <p className="text-red-500">로그인 후 댓글을 작성할 수 있습니다.</p>}
             </div>
         </div>
+				</>
     );
 };
 
