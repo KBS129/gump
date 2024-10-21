@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/app/supabase";
+import Header from "@/components/Header";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -73,22 +74,9 @@ const PostsPage = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
+    <>
+    <Header/>
     <div className="flex min-h-screen bg-gray-50 overflow-hidden">
-      {/* 왼쪽 사이드바 */}
-      <div className="hidden md:block w-1/5 bg-white p-6 shadow-md rounded-lg">
-        <h2 className="text-xl font-bold mb-5 text-gray-800">사용자 메뉴</h2>
-        <Link href="/login">
-          <button className="w-full mb-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">
-            로그인
-          </button>
-        </Link>
-        <Link href="/register">
-          <button className="w-full mb-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">
-            회원가입
-          </button>
-        </Link>
-      </div>
-
       {/* 가운데 게시글 목록 */}
       <div className="flex-1 p-6 md:p-8">
         <h1 className="text-4xl font-extrabold mb-8 text-gray-900">
@@ -152,6 +140,7 @@ const PostsPage = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
