@@ -2,14 +2,18 @@
 
 import Header from "@/components/Header";
 import { useState } from "react";
-import { supabase } from "../supabase"; // Supabase 클라이언트 가져오기
+import { useRouter } from "next/navigation";
+import { signUpUser } from "@/api/supabase.api"; // 회원가입 API 불러오기
 
 const SignupPage = () => {
+  // 상태 정의
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,28 +25,31 @@ const SignupPage = () => {
     }
 
     try {
-      // 1. Supabase Auth를 사용하여 회원가입 처리
-      
+      // Supabase API를 사용하여 회원가입 처리
+      const result = await signUpUser(email, password);
 
-      if (error) {
-        setError("회원가입 중 오류가 발생했습니다.");
-        console.error(error);
+      if (!result.success) {
+        setError(result.message || "회원가입 중 오류가 발생했습니다.");
+        console.error(result.message);
       } else {
         setSuccess("회원가입이 완료되었습니다.");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
         setError("");
+
+        // 회원가입 성공 후 다른 페이지로 리디렉션 (예: 홈 페이지)
+        router.push("/");
       }
-    } catch (error) {
+    } catch (err) {
       setError("서버 오류가 발생했습니다.");
-      console.error("Error:", error);
+      console.error("Error:", err);
     }
   };
 
   return (
     <>
-      <Header></Header>
+      <Header />
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-center mb-6">회원가입</h2>
@@ -60,7 +67,7 @@ const SignupPage = () => {
               </label>
               <input
                 type="email"
-                id="email"
+                id="em	ail"
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
