@@ -208,27 +208,6 @@ const PostsPage = () => {
           )}
         </div>
       </div>
-
-      {/* 오른쪽 사이드바: 가장 많이 조회된 게시물 */}
-      <div className="hidden md:block w-1/5 bg-white p-6 shadow-md rounded-lg">
-        <h2 className="text-xl font-bold mb-4">가장 많이 조회된 게시물</h2>
-        {topPosts.length === 0 ? (
-          <p className="text-gray-500 text-sm">게시물이 없습니다.</p>
-        ) : (
-          <ul className="space-y-2">
-            {topPosts.map((post) => (
-              <li key={post.id}>
-                <Link href={`/posts/${post.id}`}>
-                  <h3 className="font-bold text-lg text-blue-600 hover:underline">
-                    {post.movie_name}
-                  </h3>
-                  <p className="text-sm text-gray-500">조회수: {post.views}</p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
       <LoginModal isOpen={showLoginModal} toggleModal={toggleModal} />
     </>
   );

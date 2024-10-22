@@ -4,8 +4,10 @@ import Link from "next/link";
 import LoginModal from "./LoginModal";
 import { useEffect, useState } from "react";
 import { getCurrentUser, signOutUser } from "@/api/supabase.api"; // 현재 사용자 정보 및 로그아웃 함수 import
+import { useRouter } from "next/navigation";
 
 function Header() {
+  const router = useRouter(); // useRouter 훅 사용
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
   const [userEmail, setUserEmail] = useState(""); // 사용자 이메일 상태
@@ -26,10 +28,10 @@ function Header() {
 
   // 현재 로그인 상태 확인
   const checkUserLoggedIn = async () => {
-    const { success, user } = await getCurrentUser();
+    const { success } = await getCurrentUser();
     if (success) {
       setIsLoggedIn(true);
-      setUserEmail(user.email); // 이메일 상태 업데이트
+      setUserEmail(userEmail); // 이메일 상태 업데이트
     } else {
       setIsLoggedIn(false);
     }
@@ -45,6 +47,7 @@ function Header() {
     if (success) {
       setIsLoggedIn(false); // 로그인 상태 초기화
       setUserEmail(""); // 사용자 이메일 초기화
+      router.push("/"); // 홈페이지로 리다이렉션
     } else {
       console.error(message); // 로그아웃 실패 시 에러 출력
     }
