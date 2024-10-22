@@ -1,3 +1,5 @@
+// supabase.ts 파일
+
 import { supabase } from "@/app/supabase"; // Supabase 클라이언트
 
 // 1. Supabase Auth를 이용한 회원가입
@@ -20,7 +22,27 @@ export const signUpUser = async (email: string, password: string) => {
   }
 };
 
-// 2. 현재 로그인된 사용자 정보 가져오기
+// 2. Supabase Auth를 이용한 로그인
+export const signInWithSupabase = async (email: string, password: string) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Error signing in:", error.message);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    return { success: false, message: "Unexpected error occurred." };
+  }
+};
+
+// 3. 현재 로그인된 사용자 정보 가져오기
 export const getCurrentUser = async () => {
   try {
     const { data, error } = await supabase.auth.getUser();
@@ -37,7 +59,7 @@ export const getCurrentUser = async () => {
   }
 };
 
-// 3. 로그아웃 처리
+// 4. 로그아웃 처리
 export const signOutUser = async () => {
   try {
     const { error } = await supabase.auth.signOut();
@@ -54,21 +76,21 @@ export const signOutUser = async () => {
   }
 };
 
-// 4. 게시글 데이터 타입 정의
+// 5. 게시글 데이터 타입 정의
 interface PostData {
   board_id: string; // 게시판 ID는 문자열로 정의
   content: string; // 게시글 내용
   movie_name: string; // 영화 이름
 }
 
-// 5. 댓글 데이터 타입 정의
+// 6. 댓글 데이터 타입 정의
 interface CommentData {
   post_id: number; // 게시글 ID
   author_id: string; // 작성자 ID
   content: string; // 댓글 내용
 }
 
-// 6. 게시글 생성 함수
+// 7. 게시글 생성 함수
 export const createPost = async (postData: PostData) => {
   try {
     const { data, error } = await supabase
@@ -91,7 +113,7 @@ export const createPost = async (postData: PostData) => {
   }
 };
 
-// 7. 게시글 목록 가져오기 함수
+// 8. 게시글 목록 가져오기 함수
 export const getPosts = async () => {
   try {
     const { data, error } = await supabase
@@ -110,7 +132,7 @@ export const getPosts = async () => {
   }
 };
 
-// 8. 게시글 삭제 함수
+// 9. 게시글 삭제 함수
 export const deletePost = async (postId: number) => {
   try {
     const { data, error } = await supabase
@@ -129,7 +151,7 @@ export const deletePost = async (postId: number) => {
   }
 };
 
-// 9. 댓글 생성 함수
+// 10. 댓글 생성 함수
 export const createComment = async (commentData: CommentData) => {
   try {
     const { data, error } = await supabase.from("comments").insert({
@@ -149,7 +171,7 @@ export const createComment = async (commentData: CommentData) => {
   }
 };
 
-// 10. 특정 게시글의 댓글 목록 가져오기 함수
+// 11. 특정 게시글의 댓글 목록 가져오기 함수
 export const getCommentsByPostId = async (postId: number) => {
   try {
     const { data, error } = await supabase
@@ -169,7 +191,7 @@ export const getCommentsByPostId = async (postId: number) => {
   }
 };
 
-// 11. 댓글 삭제 함수
+// 12. 댓글 삭제 함수
 export const deleteComment = async (commentId: number) => {
   try {
     const { data, error } = await supabase
@@ -187,3 +209,5 @@ export const deleteComment = async (commentId: number) => {
     return null;
   }
 };
+
+export { supabase }; // Supabase 클라이언트도 내보내기
