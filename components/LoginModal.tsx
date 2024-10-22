@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { signInWithSupabase } from "@/api/supabase.api"; // signInWithSupabase 함수 import
 
-const LoginModal = ({ isOpen, toggleModal }) => {
+const LoginModal = ({ isOpen, toggleModal, setIsLoggedIn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,11 +21,12 @@ const LoginModal = ({ isOpen, toggleModal }) => {
     setLoading(false);
 
     if (success) {
-      // 로그인 성공 처리
-      toggleModal(); // 로그인 성공 시 모달 닫기
+      // 로그인 성공 시 상태 업데이트 및 모달 닫기
+      setIsLoggedIn(true);
+      toggleModal();
     } else {
       // 로그인 실패 시 에러 메시지 설정
-      setError(message); // 에러 메시지 출력
+      console.error(message);
     }
   };
 
