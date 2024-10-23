@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { supabase } from "@/app/supabase";
+import { supabase } from "@/app/supabase"; // Supabase 클라이언트 import
 import Header from "@/components/Header";
 
 const PostDetailPage = () => {
@@ -54,9 +54,30 @@ const PostDetailPage = () => {
       setComments(data || []);
     };
 
-    if (id) fetchPost();
+    if (id) {
+      fetchPost();
+      fetchComments();
+    }
     fetchUser();
-    fetchComments();
+
+    // 게시글 테이블에 대한 실시간 구독 설정
+    const channel = supabase.channel("realtime:posts"); // 구독 채널 생성
+    channel
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "posts" },
+        (payload) => {
+          if (payload.new.id === id) {
+            // 특정 게시글의 ID와 일치하는 경우
+            setPost(payload.new); // 업데이트된 게시글로 상태 업데이트
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel); // 컴포넌트 언마운트 시 구독 해제
+    };
   }, [id]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
@@ -231,27 +252,24 @@ const PostDetailPage = () => {
             </ul>
           )}
 
-          {/* 댓글 작성 폼 */}
+          {/* 댓글 작성 부분 */}
           {user && (
             <form onSubmit={handleCommentSubmit} className="mt-4">
               <textarea
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="댓글을 입력하세요..."
+                placeholder="댓글을 작성하세요."
+                className="w-full p-2 border rounded-md"
+                rows={4}
                 required
               />
               <button
                 type="submit"
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
               >
                 댓글 작성
               </button>
             </form>
-          )}
-
-          {!user && (
-            <p className="text-red-500">로그인 후 댓글을 작성할 수 있습니다.</p>
           )}
         </div>
       </div>

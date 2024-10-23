@@ -24,8 +24,10 @@ const LoginModal = ({ isOpen, toggleModal, setIsLoggedIn }) => {
       // 로그인 성공 시 상태 업데이트 및 모달 닫기
       setIsLoggedIn(true);
       toggleModal();
+      window.location.href = "/"; // 로그인 후 홈페이지로 리다이렉션
     } else {
       // 로그인 실패 시 에러 메시지 설정
+      setError(message); // 에러 메시지를 상태에 설정
       console.error(message);
     }
   };
