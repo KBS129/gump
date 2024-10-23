@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/supabase"; // Supabase 클라이언트 import
 import Header from "@/components/Header";
+import { deletePost } from "@/api/supabase.api";
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -153,12 +154,15 @@ const PostDetailPage = () => {
   const handleDeletePost = async () => {
     if (confirm("정말로 게시글을 삭제하시겠습니까?")) {
       try {
-        const { error } = await supabase.from("posts").delete().eq("id", id);
-
+        await deletePost(Number(id));
         if (error) throw error;
 
-        router.push("/posts");
+        // 게시글 삭제 후 알림 표시
+        alert("게시글이 삭제되었습니다.");
+        router.push("/posts"); // 삭제 후 목록으로 이동
       } catch (error: any) {
+        // 에러 발생 시 알림 표시
+        alert(`게시글 삭제에 실패했습니다: ${error.message}`);
         setError(error.message);
       }
     }
@@ -278,24 +282,20 @@ const PostDetailPage = () => {
                   key={comment.id}
                   className="bg-white p-4 rounded-lg shadow-md"
                 >
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="font-semibold">
-                      {comment.author_id.username}
-                    </p>
-                    {/* 작성자 이름 표시 */}
-                    {user && user.id === comment.author_id && (
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        삭제
-                      </button>
-                    )}
-                  </div>
-                  <p>{comment.content}</p>
+                  <p className="text-gray-700 mb-2">{comment.content}</p>
                   <p className="text-sm text-gray-500">
-                    작성일: {new Date(comment.created_at).toLocaleDateString()}
+                    작성자: {comment.author_id.username || "익명"} |{" "}
+                    {new Date(comment.created_at).toLocaleString()}
                   </p>
+
+                  {user && user.id === comment.author_id.id && (
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="text-red-500 text-sm"
+                    >
+                      삭제
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -303,29 +303,24 @@ const PostDetailPage = () => {
 
           {/* 댓글 작성 폼 */}
           {user ? (
-            <form onSubmit={handleCommentSubmit} className="mt-4">
-              <textarea
+            <form onSubmit={handleCommentSubmit} className="mt-4 flex">
+              <input
+                type="text"
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={3}
-                placeholder="댓글을 작성하세요..."
-                required
+                className="w-full p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="댓글을 입력하세요..."
               />
               <button
                 type="submit"
-                className="mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition"
               >
-                댓글 작성
+                작성
               </button>
             </form>
           ) : (
-            <p className="mt-4 text-gray-600">
-              댓글을 작성하려면{" "}
-              <a href="/login" className="text-blue-500">
-                로그인
-              </a>{" "}
-              해주세요.
+            <p className="text-gray-600">
+              로그인 후 댓글을 작성할 수 있습니다.
             </p>
           )}
         </div>
