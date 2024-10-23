@@ -46,12 +46,14 @@ const PostDetailPage = () => {
     const fetchComments = async () => {
       const { data, error } = await supabase
         .from("comments")
-        .select("*")
+        .select("*, author_id:users(id, username)") // users 테이블에서 username 가져오기
         .eq("post_id", id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       setComments(data || []);
+      // 로컬 스토리지에 댓글 저장
+      localStorage.setItem(`comments-${id}`, JSON.stringify(data || []));
     };
 
     if (id) {
@@ -60,23 +62,52 @@ const PostDetailPage = () => {
     }
     fetchUser();
 
+    // 댓글이 로컬 스토리지에 있으면 상태에 설정
+    const savedComments = localStorage.getItem(`comments-${id}`);
+    if (savedComments) {
+      setComments(JSON.parse(savedComments));
+    }
+
     // 게시글 테이블에 대한 실시간 구독 설정
-    const channel = supabase.channel("realtime:posts"); // 구독 채널 생성
+    const channel = supabase.channel("realtime:posts");
     channel
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "posts" },
         (payload) => {
           if (payload.new.id === id) {
-            // 특정 게시글의 ID와 일치하는 경우
-            setPost(payload.new); // 업데이트된 게시글로 상태 업데이트
+            setPost(payload.new);
+          }
+        }
+      )
+      .subscribe();
+
+    // 댓글 테이블에 대한 실시간 구독 설정
+    const commentsChannel = supabase
+      .channel("realtime:comments")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "comments" },
+        (payload) => {
+          if (payload.new.post_id === id) {
+            // 새로운 댓글을 상태에 추가
+            setComments((prevComments) => {
+              const updatedComments = [payload.new, ...prevComments];
+              // 로컬 스토리지에 업데이트
+              localStorage.setItem(
+                `comments-${id}`,
+                JSON.stringify(updatedComments)
+              );
+              return updatedComments;
+            });
           }
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel); // 컴포넌트 언마운트 시 구독 해제
+      supabase.removeChannel(channel);
+      supabase.removeChannel(commentsChannel);
     };
   }, [id]);
 
@@ -93,17 +124,27 @@ const PostDetailPage = () => {
         author_id: user.id,
         content: commentContent,
       };
+
+      // 댓글 데이터 삽입
       const { error } = await supabase.from("comments").insert([commentData]);
       if (error) throw error;
 
-      setCommentContent(""); // 댓글 작성 후 초기화
-      const updatedComments = await supabase
-        .from("comments")
-        .select("*")
-        .eq("post_id", id)
-        .order("created_at", { ascending: false });
+      // 새 댓글을 comments 상태에 추가
+      setComments((prevComments) => {
+        const updatedComments = [
+          {
+            ...commentData,
+            id: Date.now(), // 임시 ID (데이터베이스에서 생성된 ID를 사용하지 않음)
+            created_at: new Date().toISOString(), // 현재 시간으로 생성
+          },
+          ...prevComments,
+        ];
+        // 로컬 스토리지에 업데이트
+        localStorage.setItem(`comments-${id}`, JSON.stringify(updatedComments));
+        return updatedComments;
+      });
 
-      setComments(updatedComments.data || []);
+      setCommentContent(""); // 댓글 작성 후 초기화
     } catch (error: any) {
       setError(error.message);
     }
@@ -134,13 +175,18 @@ const PostDetailPage = () => {
 
         if (error) throw error;
 
-        const updatedComments = await supabase
-          .from("comments")
-          .select("*")
-          .eq("post_id", id)
-          .order("created_at", { ascending: false });
-
-        setComments(updatedComments.data || []);
+        // 삭제된 댓글 제외하고 상태 업데이트
+        setComments((prevComments) => {
+          const updatedComments = prevComments.filter(
+            (comment) => comment.id !== commentId
+          );
+          // 로컬 스토리지에 업데이트
+          localStorage.setItem(
+            `comments-${id}`,
+            JSON.stringify(updatedComments)
+          );
+          return updatedComments;
+        });
       } catch (error: any) {
         setError(error.message);
       }
@@ -169,7 +215,6 @@ const PostDetailPage = () => {
             작성일: {new Date(post.created_at).toLocaleDateString()}
           </p>
 
-          {/* 이미지가 있을 때 렌더링 */}
           {post.image_url && (
             <img
               src={post.image_url}
@@ -178,7 +223,6 @@ const PostDetailPage = () => {
             />
           )}
 
-          {/* 동영상이 있을 때 렌더링 */}
           {post.video_url && (
             <video
               src={post.video_url}
@@ -234,42 +278,55 @@ const PostDetailPage = () => {
                   key={comment.id}
                   className="bg-white p-4 rounded-lg shadow-md"
                 >
-                  <p className="text-gray-800">{comment.content}</p>
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="font-semibold">
+                      {comment.author_id.username}
+                    </p>
+                    {/* 작성자 이름 표시 */}
+                    {user && user.id === comment.author_id && (
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                  <p>{comment.content}</p>
                   <p className="text-sm text-gray-500">
                     작성일: {new Date(comment.created_at).toLocaleDateString()}
                   </p>
-
-                  {user && user.id === comment.author_id && (
-                    <button
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                    >
-                      삭제
-                    </button>
-                  )}
                 </li>
               ))}
             </ul>
           )}
 
-          {/* 댓글 작성 부분 */}
-          {user && (
+          {/* 댓글 작성 폼 */}
+          {user ? (
             <form onSubmit={handleCommentSubmit} className="mt-4">
               <textarea
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
-                placeholder="댓글을 작성하세요."
-                className="w-full p-2 border rounded-md"
-                rows={4}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+                placeholder="댓글을 작성하세요..."
                 required
               />
               <button
                 type="submit"
-                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                className="mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
               >
                 댓글 작성
               </button>
             </form>
+          ) : (
+            <p className="mt-4 text-gray-600">
+              댓글을 작성하려면{" "}
+              <a href="/login" className="text-blue-500">
+                로그인
+              </a>{" "}
+              해주세요.
+            </p>
           )}
         </div>
       </div>
