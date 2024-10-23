@@ -1,17 +1,17 @@
-// components/MyPage.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/api/supabase.api"; // 사용자 정보 가져오기
-import { getPosts } from "@/api/supabase.api"; // 게시글 가져오기
+import { getCurrentUser } from "@/api/supabase.api";
+import { getPosts } from "@/api/supabase.api";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { usePostStore } from "@/store/PostsStore";
 
 function MyPage() {
-  const router = useRouter(); // useRouter 훅 사용
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const posts = usePostStore((state) => state.posts); // Zustand에서 posts 가져오기
+  const setPosts = usePostStore((state) => state.setPosts); // Zustand에서 setPosts 액션 가져오기
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -20,19 +20,23 @@ function MyPage() {
         setUser(user);
         fetchUserPosts(user.id); // 사용자 ID로 게시글 가져오기
       } else {
-        // 로그인하지 않은 경우 로그인 페이지로 리다이렉션
         router.push("/login"); // 로그인 페이지로 이동
       }
     };
 
     fetchUserData();
-  }, [router]); // router를 의존성 배열에 추가
+  }, [router]);
 
-  // 사용자가 작성한 게시글 가져오기
   const fetchUserPosts = async (userId: string) => {
-    const allPosts = await getPosts(); // 모든 게시글 가져오기
-    const userPosts = allPosts.filter((post) => post.author_id === userId); // 작성한 게시글 필터링
-    setPosts(userPosts);
+    const allPosts = await getPosts();
+    const userPosts = allPosts
+      ? allPosts.filter((post) => post.author_id === userId)
+      : [];
+    setPosts(userPosts); // Zustand 상태에 게시글 설정
+  };
+
+  const handlePostClick = (postId: string) => {
+    router.push(`/posts/${postId}`); // 게시글 상세 페이지로 이동
   };
 
   return (
@@ -48,21 +52,29 @@ function MyPage() {
               사용자 정보
             </h3>
             <p className="text-lg text-gray-600">이메일: {user.email}</p>
-            {/* 다른 사용자 정보가 있으면 추가로 표시 */}
 
             <h3 className="text-2xl font-semibold text-gray-700 mt-6">
               내가 쓴 게시글
             </h3>
-            {posts.length > 0 ? (
+            {posts && posts.length > 0 ? (
               <ul className="mt-4">
-                {posts.map((post) => (
-                  <li key={post.id} className="border-b py-4">
-                    <h4 className="font-semibold text-lg text-blue-600">
-                      {post.movie_name}
-                    </h4>
-                    <p className="text-gray-600">{post.content}</p>
-                  </li>
-                ))}
+                {posts.map(
+                  (post) =>
+                    post && (
+                      <li
+                        key={post.id}
+                        className="border-b py-4 cursor-pointer hover:bg-gray-200"
+                        onClick={() => handlePostClick(post.id)} // 게시글 클릭 이벤트 추가
+                      >
+                        <h4 className="font-semibold text-lg text-blue-600">
+                          {post.movie_name || "제목 없음"}
+                        </h4>
+                        <p className="text-gray-600">
+                          {post.content || "내용 없음"}
+                        </p>
+                      </li>
+                    )
+                )}
               </ul>
             ) : (
               <p className="mt-4 text-gray-500">작성한 게시글이 없습니다.</p>

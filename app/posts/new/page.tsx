@@ -1,22 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { usePostStore } from "@/store/PostsStore";
 import { supabase } from "@/app/supabase";
 
-const NewPost = () => {
+const PostNew = () => {
   const [boardId, setBoardId] = useState(""); // board_id 입력 상태로 관리
   const [movieName, setMovieName] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null); // 이미지 또는 동영상 파일 상태로 관리
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보 상태
   const router = useRouter();
+  const addPost = usePostStore((state) => state.addPost); // Zustand에서 addPost 액션 가져오기
+
+  // 사용자 정보를 가져오는 useEffect
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user); // 사용자 정보를 상태에 저장
+    };
+
+    fetchUser();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
+
+    // 사용자 정보 확인
+    if (!user) {
+      setError("사용자 정보를 가져오는 중입니다.");
+      setLoading(false);
+      return;
+    }
 
     try {
       let imageUrl = null;
@@ -36,15 +55,14 @@ const NewPost = () => {
         }
 
         if (path) {
-          const { data, error: uploadError } = await supabase.storage
-            .from("media")
-            .upload(path, file);
+          const { data: uploadData, error: uploadError } =
+            await supabase.storage.from("media").upload(path, file);
 
           if (uploadError) throw uploadError;
 
           const publicUrl = supabase.storage
             .from("media")
-            .getPublicUrl(data.path).data.publicUrl;
+            .getPublicUrl(uploadData.path).data.publicUrl;
 
           if (isImage) {
             imageUrl = publicUrl;
@@ -55,15 +73,22 @@ const NewPost = () => {
       }
 
       // 게시글을 Supabase 데이터베이스에 추가
-      const { error: postError } = await supabase.from("posts").insert({
-        board_id: boardId, // board_id 추가
-        movie_name: movieName,
-        content: content,
-        image_url: imageUrl,
-        video_url: videoUrl,
-      });
+      const { data: postData, error: postError } = await supabase
+        .from("posts")
+        .insert({
+          board_id: boardId, // board_id 추가
+          movie_name: movieName,
+          content: content,
+          image_url: imageUrl,
+          video_url: videoUrl,
+          author_id: user.id, // 작성자 ID 추가
+        })
+        .single();
 
       if (postError) throw postError;
+
+      // 새로운 게시글이 추가된 후 Zustand에 상태 업데이트
+      addPost(postData);
 
       // 성공 시 메인 페이지로 이동
       router.push("/posts");
@@ -85,7 +110,7 @@ const NewPost = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="relative">
           <label className="block text-sm font-semibold text-gray-600 mb-2">
-            게시판 ID
+            게시판 제목
           </label>
           <input
             type="text"
@@ -160,4 +185,4 @@ const NewPost = () => {
   );
 };
 
-export default NewPost;
+export default PostNew;

@@ -30,6 +30,7 @@ const PostsPage = () => {
     checkUser();
   }, []);
 
+  // 게시글 목록 불러오기
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -50,19 +51,19 @@ const PostsPage = () => {
     fetchPosts();
   }, []);
 
+  // 가장 많이 조회된 게시물 불러오기
   useEffect(() => {
     const fetchTopPosts = async () => {
       try {
         const { data: topData, error: topError } = await supabase
           .from("posts")
           .select("*")
-          .order("views", { ascending: false })
+          .order("views", { ascending: false }) // 조회수를 기준으로 내림차순 정렬
           .limit(10);
 
         if (topError) throw topError;
 
-        const shuffledPosts = topData.sort(() => Math.random() - 0.5);
-        setTopPosts(shuffledPosts || []);
+        setTopPosts(topData || []); // 랜덤으로 섞지 않고 직접 정렬된 데이터를 사용
       } catch (error: any) {
         setError(error.message);
       }
@@ -71,6 +72,24 @@ const PostsPage = () => {
     fetchTopPosts();
   }, [posts]);
 
+  // 새 글 작성 후 게시글 상태 업데이트
+  const handleNewPostSubmit = async (newPost) => {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .insert(newPost)
+        .single();
+
+      if (error) throw error;
+
+      // 새로운 글이 성공적으로 추가된 후 상태 업데이트
+      setPosts((prevPosts) => [data, ...prevPosts]);
+    } catch (error: any) {
+      console.error("게시글 작성 중 오류:", error.message);
+    }
+  };
+
+  // 게시글 클릭 시 조회수 증가
   const handlePostClick = async (postId: number) => {
     try {
       const { error } = await supabase.rpc("increment_views", {
@@ -100,9 +119,9 @@ const PostsPage = () => {
   // 로그인 여부 확인 후 새 글 작성 페이지 이동 또는 로그인 모달 표시
   const handleNewPostClick = () => {
     if (user) {
-      window.location.href = "/posts/new";
+      window.location.href = "/posts/new"; // 로그인이 되어 있을 경우 새 글 작성 페이지로 이동
     } else {
-      setShowLoginModal(true); // 모달을 표시
+      setShowLoginModal(true); // 로그인이 안 되어 있을 경우 로그인 모달 표시
     }
   };
 
@@ -132,7 +151,7 @@ const PostsPage = () => {
           </h1>
           <button
             className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105"
-            onClick={handleNewPostClick}
+            onClick={handleNewPostClick} // 클릭 시 로그인 상태에 따라 동작
           >
             새 글 작성
           </button>
@@ -153,11 +172,12 @@ const PostsPage = () => {
                     <h2 className="font-bold text-2xl text-blue-600 hover:underline">
                       {post.movie_name}
                     </h2>
-                    <p className="text-gray-700 text-base mt-2">
+                    {/* 아래의 내용 부분을 주석 처리하여 내용 숨기기 */}
+                    {/* <p className="text-gray-700 text-base mt-2">
                       {post.content.length > 150
                         ? `${post.content.substring(0, 150)}...`
                         : post.content}
-                    </p>
+                    </p> */}
                     <p className="text-sm text-gray-500 mt-4">
                       {new Date(post.created_at).toLocaleDateString()}
                     </p>
@@ -208,7 +228,8 @@ const PostsPage = () => {
           )}
         </div>
       </div>
-      <LoginModal isOpen={showLoginModal} toggleModal={toggleModal} />
+      <LoginModal isOpen={showLoginModal} toggleModal={toggleModal} />{" "}
+      {/* 로그인 모달 추가 */}
     </>
   );
 };
