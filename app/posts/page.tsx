@@ -172,7 +172,7 @@ const PostsPage = () => {
                     <h2 className="font-bold text-2xl text-blue-600 hover:underline">
                       {post.movie_name}
                     </h2>
-                    {/* 아래의 내용 부분을 주석 처리하여 내용 숨기기 */}
+                    {/* 내용 부분을 주석 처리하여 내용 숨기기 */}
                     {/* <p className="text-gray-700 text-base mt-2">
                       {post.content.length > 150
                         ? `${post.content.substring(0, 150)}...`
