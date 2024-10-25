@@ -117,7 +117,7 @@ const PostNew = () => {
             value={boardId}
             onChange={(e) => setBoardId(e.target.value)}
             className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-            placeholder="게시판 ID를 입력하세요"
+            placeholder="게시판 제목을 입력하세요"
             required
           />
         </div>
