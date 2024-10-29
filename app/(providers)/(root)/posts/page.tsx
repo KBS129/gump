@@ -143,10 +143,10 @@ const PostsPage = () => {
   return (
     <>
       <Header />
-      <div className="flex min-h-screen bg-gray-50 overflow-hidden relative">
+      <div className="flex min-h-screen bg-black text-white overflow-hidden relative">
         {/* 가운데 게시글 목록 */}
         <div className="flex-1 p-6 md:p-8 relative z-10">
-          <h1 className="text-4xl font-extrabold mb-8 text-gray-900">
+          <h1 className="text-4xl font-extrabold mb-8 text-white">
             게시글 목록
           </h1>
           <button
@@ -207,7 +207,9 @@ const PostsPage = () => {
 
         {/* 오른쪽 사이드바: 가장 많이 조회된 게시물 */}
         <div className="hidden md:block w-1/4 bg-white p-6 shadow-md rounded-lg z-10">
-          <h2 className="text-xl font-bold mb-4">가장 많이 조회된 게시물</h2>
+          <h2 className="text-xl font-bold mb-4 text-black">
+            가장 많이 조회된 게시물
+          </h2>
           {topPosts.length === 0 ? (
             <p className="text-gray-500 text-sm">게시물이 없습니다.</p>
           ) : (
@@ -215,12 +217,10 @@ const PostsPage = () => {
               {topPosts.map((post) => (
                 <li key={post.id}>
                   <Link href={`/posts/${post.id}`}>
-                    <h3 className="font-bold text-lg text-blue-600 hover:underline">
+                    <h3 className="font-bold text-lg text-blue-400 hover:underline">
                       {post.movie_name}
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      조회수: {post.views}
-                    </p>
+                    <p className="text-sm text-black">조회수: {post.views}</p>
                   </Link>
                 </li>
               ))}
