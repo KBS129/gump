@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePostStore } from "@/store/PostsStore";
 import { supabase } from "@/app/supabase";
+import Header from "@/components/Header";
 
 const PostNew = () => {
   const [boardId, setBoardId] = useState(""); // board_id 입력 상태로 관리
@@ -100,87 +101,90 @@ const PostNew = () => {
   };
 
   return (
-    <div className="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-8 max-w-2xl">
-      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
-        새 게시글 작성
-      </h1>
+    <div className="bg-black">
+      <Header />
+      <div className="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-8 max-w-2xl">
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+          새 게시글 작성
+        </h1>
 
-      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="relative">
-          <label className="block text-sm font-semibold text-gray-600 mb-2">
-            게시판 제목
-          </label>
-          <input
-            type="text"
-            value={boardId}
-            onChange={(e) => setBoardId(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-            placeholder="게시판 제목을 입력하세요"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="relative">
+            <label className="block text-sm font-semibold text-gray-600 mb-2">
+              게시판 제목
+            </label>
+            <input
+              type="text"
+              value={boardId}
+              onChange={(e) => setBoardId(e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+              placeholder="게시판 제목을 입력하세요"
+              required
+            />
+          </div>
 
-        <div className="relative">
-          <label className="block text-sm font-semibold text-gray-600 mb-2">
-            영화 이름
-          </label>
-          <input
-            type="text"
-            value={movieName}
-            onChange={(e) => setMovieName(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-            placeholder="영화 이름을 입력하세요"
-            required
-          />
-        </div>
+          <div className="relative">
+            <label className="block text-sm font-semibold text-gray-600 mb-2">
+              영화 이름
+            </label>
+            <input
+              type="text"
+              value={movieName}
+              onChange={(e) => setMovieName(e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+              placeholder="영화 이름을 입력하세요"
+              required
+            />
+          </div>
 
-        <div className="relative">
-          <label className="block text-sm font-semibold text-gray-600 mb-2">
-            내용
-          </label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-            rows={4}
-            placeholder="내용을 입력하세요"
-            required
-          ></textarea>
-        </div>
+          <div className="relative">
+            <label className="block text-sm font-semibold text-gray-600 mb-2">
+              내용
+            </label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+              rows={4}
+              placeholder="내용을 입력하세요"
+              required
+            ></textarea>
+          </div>
 
-        <div className="relative">
-          <label className="block text-sm font-semibold text-gray-600 mb-2">
-            파일 업로드
-          </label>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="p-3 border border-gray-300 rounded-lg w-full cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-          />
-        </div>
+          <div className="relative">
+            <label className="block text-sm font-semibold text-gray-600 mb-2">
+              파일 업로드
+            </label>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="p-3 border border-gray-300 rounded-lg w-full cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+            />
+          </div>
 
-        <div className="flex justify-between items-center mt-6">
-          <button
-            type="submit"
-            className={`px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={loading}
-          >
-            {loading ? "게시글 업로드 중..." : "게시글 작성"}
-          </button>
-          <button
-            type="button"
-            className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-300"
-            onClick={() => router.back()} // 취소 버튼 클릭 시 이전 페이지로 이동
-          >
-            취소
-          </button>
-        </div>
-      </form>
+          <div className="flex justify-between items-center mt-6">
+            <button
+              type="submit"
+              className={`px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? "게시글 업로드 중..." : "게시글 작성"}
+            </button>
+            <button
+              type="button"
+              className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-300"
+              onClick={() => router.back()} // 취소 버튼 클릭 시 이전 페이지로 이동
+            >
+              취소
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
