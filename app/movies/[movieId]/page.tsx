@@ -1,12 +1,13 @@
 'use client'
 
-import { FaPlay } from "react-icons/fa";
-import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getMovie, MovieDetail } from '../../../api/tmdb.api';
+import Header from "@/components/Header";
 import LikeMovieButton from "@/components/LikeMovieButton";
 import Page from "@/components/Page";
-import Header from "@/components/Header";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { FaPlay } from "react-icons/fa";
+import { getMovie, MovieDetail } from '../../../api/tmdb.api';
+import MovieReviewsList from "./_components/MovieReviewsList";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -62,10 +63,13 @@ const MovieDetailPage = () => {
                   </button>
                   <LikeMovieButton movieId={movieId || ""} />
                 </div>
+                <div className="mt-12">
+                  <MovieReviewsList />
+                </div>
               </div>
               <img
                 src={IMAGE_BASE_URL + movie.poster_path}
-                className="shadow-2xl max-w-sm"
+                className="shadow-2xl max-w-sm self-start"
                 alt={movie.title}
               />
             </div>
