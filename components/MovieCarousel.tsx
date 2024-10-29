@@ -2,11 +2,11 @@
 
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css"; // Swiper 스타일 import (기본 스타일)
-import "swiper/css/navigation"; // 네비게이션 스타일
-import "swiper/css/pagination"; // 페이지네이션 스타일
-import "swiper/css/effect-fade"; // 페이드 효과 스타일
-import Image from "next/image"; // Next.js의 Image 컴포넌트 import
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-fade";
+import Image from "next/image";
 
 const Carousel = () => {
   const movieImages = [
