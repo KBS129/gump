@@ -210,4 +210,4 @@ export const deleteComment = async (commentId: number) => {
   }
 };
 
-export { supabase }; // Supabase 클라이언트도 내보내기
+export { supabase };
