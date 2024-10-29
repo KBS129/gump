@@ -1,3 +1,4 @@
+// api/tmdb.api.ts
 import axios from "axios";
 
 const tmdbBaseURL = "https://api.themoviedb.org";
@@ -10,6 +11,7 @@ const tmdbClient = axios.create({
 
 const jsonClient = axios.create({ baseURL: "http://localhost:3000" });
 
+// 영화 카테고리별 목록을 가져오는 함수
 export const getMoviesOnCategory = async (category: string): Promise<Movie[]> => {
   const validCategories = ['popular', 'top_rated', 'now_playing'];
   
@@ -29,6 +31,7 @@ export const getMoviesOnCategory = async (category: string): Promise<Movie[]> =>
   }
 };
 
+// 특정 영화의 세부 정보를 가져오는 함수
 export const getMovie = async (movieId: string | number): Promise<MovieDetail> => {
   const url = `/3/movie/${movieId}?language=ko-KR`;
   const response = await tmdbClient.get(url);
@@ -38,6 +41,7 @@ export const getMovie = async (movieId: string | number): Promise<MovieDetail> =
   return movie;
 };
 
+// 영화 좋아요 추가 함수
 export const likeMovie = async (movieId: string | number): Promise<LikedMovie> => {
   const url = "/likedMovies";
   const response = await jsonClient.post(url, { id: movieId });
@@ -46,6 +50,7 @@ export const likeMovie = async (movieId: string | number): Promise<LikedMovie> =
   return likedMovie;
 };
 
+// 영화 좋아요 삭제 함수
 export const unlikeMovie = async (movieId: string | number): Promise<LikedMovie> => {
   const url = `/likedMovies/${movieId}`;
   const response = await jsonClient.delete(url);
@@ -54,6 +59,7 @@ export const unlikeMovie = async (movieId: string | number): Promise<LikedMovie>
   return likedMovie;
 };
 
+// 영화 좋아요 상태 확인 함수
 export const checkIsLikedMovie = async (movieId: string | number): Promise<boolean> => {
   try {
     const url = `likedMovies/${movieId}`;
@@ -71,6 +77,20 @@ export const checkIsLikedMovie = async (movieId: string | number): Promise<boole
   }
 };
 
+// 출연진 정보를 가져오는 함수
+export const getMovieCredits = async (movieId: string | number): Promise<Cast[]> => {
+  const url = `/3/movie/${movieId}/credits?language=ko-KR`;
+  try {
+    const response = await tmdbClient.get(url);
+    const cast = response.data.cast;
+    return cast;
+  } catch (error) {
+    console.error("출연진 정보 가져오기 오류:", error);
+    throw new Error("출연진 정보를 가져오는 데 실패했습니다.");
+  }
+};
+
+// 인터페이스 정의
 export interface Movie {
   id: number;
   title: string;
@@ -90,4 +110,11 @@ export interface MovieDetail {
 
 export interface LikedMovie {
   id: number;
+}
+
+export interface Cast {
+  id: number;
+  name: string;
+  profile_path: string | null;
+  character: string;
 }
