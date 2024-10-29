@@ -3,14 +3,14 @@
 import Link from "next/link";
 import LoginModal from "./LoginModal";
 import { useEffect, useState } from "react";
-import { getCurrentUser, signOutUser } from "@/api/supabase.api"; // 현재 사용자 정보 및 로그아웃 함수 import
+import { getCurrentUser, signOutUser } from "@/api/supabase.api";
 import { useRouter } from "next/navigation";
 
 function Header() {
-  const router = useRouter(); // useRouter 훅 사용
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
-  const [userEmail, setUserEmail] = useState(""); // 사용자 이메일 상태
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
@@ -26,60 +26,58 @@ function Header() {
     }
   }, [isOpen]);
 
-  // 현재 로그인 상태 확인
   const checkUserLoggedIn = async () => {
     const { success } = await getCurrentUser();
     if (success) {
       setIsLoggedIn(true);
-      setUserEmail(userEmail); // 이메일 상태 업데이트
+      setUserEmail(userEmail);
     } else {
       setIsLoggedIn(false);
     }
   };
 
   useEffect(() => {
-    checkUserLoggedIn(); // 컴포넌트가 마운트될 때 로그인 상태 확인
+    checkUserLoggedIn();
   }, []);
 
-  // 로그아웃 처리 함수
   const handleLogout = async () => {
-    const { success, message } = await signOutUser(); // 로그아웃 호출
+    const { success, message } = await signOutUser();
     if (success) {
-      setIsLoggedIn(false); // 로그인 상태 초기화
-      setUserEmail(""); // 사용자 이메일 초기화
-      router.push("/"); // 홈페이지로 리다이렉션
+      setIsLoggedIn(false);
+      setUserEmail("");
+      router.push("/");
     } else {
-      console.error(message); // 로그아웃 실패 시 에러 출력
+      console.error(message);
     }
   };
 
   return (
     <header className="flex items-center p-4 border-b">
-      <h1 className="text-4xl font-extrabold bg-gradient-to-r from-[#80FF72] to-[#7EE8FA] bg-clip-text text-transparent font-cafe24">
+      <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-[#80FF72] to-[#7EE8FA] bg-clip-text text-transparent font-cafe24">
         <Link href="/">gump</Link>
       </h1>
 
-      <nav className="flex items-center space-x-4 ml-4">
-        <Link href="/posts" className="text-lg">
+      <nav className="flex items-center space-x-2 sm:space-x-4 ml-4">
+        <Link href="/posts" className="text-base sm:text-lg">
           자유 게시판
         </Link>
       </nav>
-      <nav className="ml-auto flex items-center space-x-4">
+      <nav className="ml-auto flex items-center space-x-2 sm:space-x-4">
         {isLoggedIn ? (
           <>
-            <Link href="/mypage" className="text-lg">
+            <Link href="/mypage" className="text-base sm:text-lg">
               마이페이지
             </Link>
-            <button onClick={handleLogout} className="text-lg">
+            <button onClick={handleLogout} className="text-base sm:text-lg">
               로그아웃
             </button>
           </>
         ) : (
           <>
-            <Link href="/sign-up" className="text-lg">
+            <Link href="/sign-up" className="text-base sm:text-lg">
               회원가입
             </Link>
-            <button onClick={toggleModal} className="text-lg">
+            <button onClick={toggleModal} className="text-base sm:text-lg">
               로그인
             </button>
           </>

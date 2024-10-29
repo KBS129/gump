@@ -6,9 +6,9 @@ import "swiper/css"; // Swiper 스타일 import (기본 스타일)
 import "swiper/css/navigation"; // 네비게이션 스타일
 import "swiper/css/pagination"; // 페이지네이션 스타일
 import "swiper/css/effect-fade"; // 페이드 효과 스타일
+import Image from "next/image"; // Next.js의 Image 컴포넌트 import
 
 const Carousel = () => {
-  // 슬라이드에 사용할 이미지 (예시로 TMDB 이미지를 하드코딩)
   const movieImages = [
     "https://image.tmdb.org/t/p/original/8RQLfagTgOpMo3AR2l0cozyhheO.jpg",
     "https://image.tmdb.org/t/p/original/2QhEpt9gicd3fuT2w3yRO2j9cx7.jpg",
@@ -32,9 +32,11 @@ const Carousel = () => {
       >
         {movieImages.map((image, index) => (
           <SwiperSlide key={index}>
-            <img
+            <Image
               src={image}
               alt={`Movie Poster ${index}`}
+              width={500} // 적절한 너비 값 설정
+              height={300} // 적절한 높이 값 설정
               className="w-full h-64 object-cover rounded-lg shadow-lg"
             />
           </SwiperSlide>
