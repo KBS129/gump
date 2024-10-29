@@ -11,7 +11,7 @@ interface LikeMovieButtonProps {
 function LikeMovieButton({ movieId }: LikeMovieButtonProps) {
   const queryClient = useQueryClient();
   const queryKey = ["isLikedMovie", { movieId }];
-  const { data: isLikedMovie } = useQuery({	
+  const { data: isLikedMovie } = useQuery({
     queryKey,
     queryFn: () => checkIsLikedMovie(movieId),
   });
