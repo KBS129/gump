@@ -260,4 +260,75 @@ export const deleteComment = async (commentId: number) => {
   }
 };
 
+// 17. 리뷰 데이터 타입 정의
+interface ReviewData {
+  user_id: string; // 작성자 ID
+  movie_id: string | number; // 영화 ID
+  rating: number; // 별점
+  content: string; // 리뷰 내용
+}
+
+// 18. 리뷰 생성 함수
+export const createReview = async (reviewData: ReviewData) => {
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        user_id: reviewData.user_id,
+        movie_id: reviewData.movie_id,
+        rating: reviewData.rating,
+        content: reviewData.content,
+      })
+      .select("*");
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;	
+  } catch (error) {
+    console.error("리뷰 생성 중 오류 발생: ", error);
+    return null;
+  }
+};
+
+// 19. 특정 영화의 리뷰 목록 가져오기 함수
+export const getReviewsByMovieId = async (movieId: string | number) => {
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("movie_id", movieId)
+      .order("createdAt", { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("리뷰 가져오기 중 오류 발생:", error);
+    return [];
+  }
+};
+
+// 20. 리뷰 삭제 함수
+export const deleteReview = async (reviewId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .delete()
+      .eq("id", reviewId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("리뷰 삭제 중 오류 발생:", error);
+    return null;
+  }
+};
+
 export { supabase };

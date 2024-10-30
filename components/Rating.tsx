@@ -19,7 +19,7 @@ const Rating = ({ clicked, onStarClick }: RatingProps) => {
           onClick={() => onStarClick(el)} // 'el'을 사용하도록 변경
           className={`${
             clicked[el] ? "text-yellow-400" : "text-gray-400"
-          } cursor-pointer hover:text-yellow-400`}
+          } cursor-pointer 2hover:text-yellow-400`}
         />
       ))}
       <p className="ml-2 text-lg font-semibold">
