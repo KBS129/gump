@@ -211,8 +211,10 @@ const PostDetailPage = () => {
   return (
     <>
       <Header />
-      <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4">
-        <h1 className="text-3xl font-semibold mb-6">{post.movie_name}</h1>
+      <div className="flex flex-col items-center min-h-screen bg-black p-4">
+        <h1 className="text-3xl font-semibold mb-6 text-white">
+          {post.movie_name}
+        </h1>
         <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
           <p className="text-gray-700 mb-4">{post.content}</p>
           <p className="text-sm text-gray-500">
@@ -271,10 +273,10 @@ const PostDetailPage = () => {
 
         {/* 댓글 표시 부분 */}
         <div className="mt-8 w-full max-w-2xl">
-          <h2 className="text-2xl font-semibold mb-4">댓글</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-white">댓글</h2>
 
           {comments.length === 0 ? (
-            <p className="text-gray-600">댓글이 없습니다.</p>
+            <p className="text-white">댓글이 없습니다.</p>
           ) : (
             <ul className="space-y-4">
               {comments.map((comment) => (

@@ -169,7 +169,7 @@ const PostsPage = () => {
                     href={`/posts/${post.id}`}
                     onClick={() => handlePostClick(post.id)}
                   >
-                    <h2 className="font-bold text-2xl text-blue-600 hover:underline">
+                    <h2 className="font-bold text-2xl text-blue-400 hover:underline">
                       {post.movie_name}
                     </h2>
                     {/* 내용 부분을 주석 처리하여 내용 숨기기 */}

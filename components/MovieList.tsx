@@ -1,8 +1,8 @@
-"use client"; 
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { getMoviesOnCategory, Movie } from '../api/tmdb.api';
-import MovieCard from './MovieCard';
+import { useQuery } from "@tanstack/react-query";
+import { getMoviesOnCategory, Movie } from "../api/tmdb.api";
+import MovieCard from "./MovieCard";
 
 interface MoviesListProps {
   title: string;
@@ -10,8 +10,13 @@ interface MoviesListProps {
 }
 
 function MoviesList({ title, category }: MoviesListProps) {
-  const { data: moviesOnCategory = [], isLoading, isError, error } = useQuery<Movie[]>({
-    queryKey: ['movies', category],
+  const {
+    data: moviesOnCategory = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Movie[]>({
+    queryKey: ["movies", category],
     queryFn: () => getMoviesOnCategory(category),
   });
 
@@ -28,7 +33,9 @@ function MoviesList({ title, category }: MoviesListProps) {
     return (
       <section className="mt-16">
         <h3 className="mt-0 mb-5 text-2xl sm:text-3xl font-bold">{title}</h3>
-        <p className="text-lg">Error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        <p className="text-lg">
+          Error: {error instanceof Error ? error.message : "Unknown error"}
+        </p>
       </section>
     );
   }
@@ -48,7 +55,10 @@ function MoviesList({ title, category }: MoviesListProps) {
 
       <ul className="list-none mx-5 flex gap-x-5 overflow-x-auto scrollbar-hide ">
         {moviesOnCategory.map((movie) => (
-          <li key={movie.id} className="flex-shrink-0 w-[calc((100vw-30px)/2)] sm:w-[calc((100vw-80px)/5)]">
+          <li
+            key={movie.id}
+            className="flex-shrink-0 w-[calc((100vw-30px)/2)] sm:w-[calc((100vw-80px)/5)] hover:scale-105 transition-transform"
+          >
             <MovieCard movie={movie} />
           </li>
         ))}

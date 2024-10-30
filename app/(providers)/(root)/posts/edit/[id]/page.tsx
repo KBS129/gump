@@ -61,8 +61,8 @@ const EditPostPage = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-semibold mb-6">게시글 수정</h1>
+    <div className="flex flex-col items-center min-h-screen bg-black p-4">
+      <h1 className="text-3xl font-semibold mb-6 text-white">게시글 수정</h1>
       <form
         onSubmit={handleUpdatePost}
         className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl"

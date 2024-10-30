@@ -72,7 +72,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
               {error && <p className="text-red-500">{error}</p>}
               <button
                 type="submit"
-                className="bg-blue-500 text-white rounded p-2"
+                className="bg-black text-white hover:bg-slate-600 rounded p-2"
                 disabled={loading}
               >
                 {loading ? "로그인 중..." : "로그인하기"}
@@ -80,13 +80,16 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="button"
                 onClick={toggleModal}
-                className="text-red-500"
+                className="text-red-500 hover:scale-105 transition-transform"
               >
                 취소
               </button>
               <div className="flex flex-col items-center space-y-2">
                 <p className="text-black">아직 회원이 아니신가요?</p>
-                <a href="/sign-up" className="text-lg text-red-500">
+                <a
+                  href="/sign-up"
+                  className="text-lg text-red-500 hover:scale-105 transition-transform"
+                >
                   회원가입하기
                 </a>
               </div>
