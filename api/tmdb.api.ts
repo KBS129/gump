@@ -1,9 +1,8 @@
-// api/tmdb.api.ts
 import axios from "axios";
 
 const tmdbBaseURL = "https://api.themoviedb.org";
-const tmdbAccessToken =
-  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYjdiMTJjM2M2NjhiMjNjZThhNmNhMjFiYTE5M2JjYiIsIm5iZiI6MTcyNDgzMjQ5NC41NTE1NTMsInN1YiI6IjY1YTlkNjZjNTM0NjYxMDEzOGNkMTFhYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.rRVZwTNunIYGQ1-wPudD_JX_4KKTVWUSXtLP5Y4ARqs";
+const tmdbAccessToken = process.env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN;
+
 const tmdbClient = axios.create({
   baseURL: tmdbBaseURL,
   headers: { Authorization: tmdbAccessToken },

@@ -13,7 +13,7 @@ const Carousel = () => {
     "https://image.tmdb.org/t/p/original/8RQLfagTgOpMo3AR2l0cozyhheO.jpg",
     "https://image.tmdb.org/t/p/original/2QhEpt9gicd3fuT2w3yRO2j9cx7.jpg",
     "https://image.tmdb.org/t/p/original/jlLNdnMkcw1Dym0ebjS9jpx9F0M.jpg",
-    "https://image.tmdb.org/t/p/original/1bduANW38wAw14KHLB0DdLl5l5b.jpg"
+    "https://image.tmdb.org/t/p/original/1bduANW38wAw14KHLB0DdLl5l5b.jpg",
   ];
 
   return (
