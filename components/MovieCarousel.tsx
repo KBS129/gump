@@ -17,7 +17,7 @@ const Carousel = () => {
   ];
 
   return (
-    <div className="relative max-w-screen-lg mx-auto my-8 p-4">
+    <div className="relative max-w-screen-lg mx-auto my-8 p-4 bg-black text-white">
       <Swiper
         spaceBetween={10}
         slidesPerView={1}
