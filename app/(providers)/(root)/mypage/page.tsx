@@ -41,48 +41,50 @@ function MyPage() {
 
   return (
     <>
-      <Header />
-      <div className="p-6 bg-gray-100 min-h-screen">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          마이페이지
-        </h2>
-        {user ? (
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-2xl font-semibold text-gray-700">
-              사용자 정보
-            </h3>
-            <p className="text-lg text-gray-600">이메일: {user.email}</p>
+      <div className="bg-black text-white">
+        <Header />
+        <div className="p-6 min-h-screen bg-black text-white">
+          <h2 className="text-3xl font-bold text-center mb-6 text-white">
+            마이페이지
+          </h2>
+          {user ? (
+            <div className="bg-white shadow-md rounded-lg p-4">
+              <h3 className="text-2xl font-semibold text-gray-700">
+                사용자 정보
+              </h3>
+              <p className="text-lg text-gray-600">이메일: {user.email}</p>
 
-            <h3 className="text-2xl font-semibold text-gray-700 mt-6">
-              내가 쓴 게시글
-            </h3>
-            {posts && posts.length > 0 ? (
-              <ul className="mt-4">
-                {posts.map(
-                  (post) =>
-                    post && (
-                      <li
-                        key={post.id}
-                        className="border-b py-4 cursor-pointer hover:bg-gray-200"
-                        onClick={() => handlePostClick(post.id)} // 게시글 클릭 이벤트 추가
-                      >
-                        <h4 className="font-semibold text-lg text-blue-600">
-                          {post.movie_name || "제목 없음"}
-                        </h4>
-                        <p className="text-gray-600">
-                          {post.content || "내용 없음"}
-                        </p>
-                      </li>
-                    )
-                )}
-              </ul>
-            ) : (
-              <p className="mt-4 text-gray-500">작성한 게시글이 없습니다.</p>
-            )}
-          </div>
-        ) : (
-          <p className="text-lg text-red-500">로그인 상태가 아닙니다.</p>
-        )}
+              <h3 className="text-2xl font-semibold text-gray-700 mt-6">
+                내가 쓴 게시글
+              </h3>
+              {posts && posts.length > 0 ? (
+                <ul className="mt-4">
+                  {posts.map(
+                    (post) =>
+                      post && (
+                        <li
+                          key={post.id}
+                          className="border-b py-4 cursor-pointer hover:bg-gray-200"
+                          onClick={() => handlePostClick(post.id)} // 게시글 클릭 이벤트 추가
+                        >
+                          <h4 className="font-semibold text-lg text-blue-600">
+                            {post.movie_name || "제목 없음"}
+                          </h4>
+                          <p className="text-gray-600">
+                            {post.content || "내용 없음"}
+                          </p>
+                        </li>
+                      )
+                  )}
+                </ul>
+              ) : (
+                <p className="mt-4 text-gray-500">작성한 게시글이 없습니다.</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-lg text-red-500">로그인 상태가 아닙니다.</p>
+          )}
+        </div>
       </div>
     </>
   );

@@ -55,7 +55,7 @@ const SignupPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-center mb-6">회원가입</h2>
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
@@ -66,7 +66,7 @@ const SignupPage = () => {
             <div className="mb-4">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 이메일
               </label>
@@ -84,7 +84,7 @@ const SignupPage = () => {
             <div className="mb-4">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 비밀번호
               </label>
@@ -102,7 +102,7 @@ const SignupPage = () => {
             <div className="mb-6">
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 비밀번호 확인
               </label>
@@ -119,7 +119,7 @@ const SignupPage = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-3 bg-black text-white rounded-md hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               회원가입
             </button>

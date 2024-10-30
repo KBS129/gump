@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from "next/link";
+import Image from "next/image";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -16,10 +16,14 @@ interface MovieCardProps {
 function MovieCard({ movie }: MovieCardProps) {
   return (
     <Link href={`/movies/${movie.id}`} passHref>
-      <div className="relative w-full bg-white cursor-pointer">
+      <div className="relative w-full bg-white cursor-pointer border-2 border-white rounded-lg overflow-hidden">
         <Image
-          src={movie.backdrop_path ? IMAGE_BASE_URL + movie.backdrop_path : '/path/to/default-image.jpg'}
-          alt={movie.title || '제목이 없습니다'}
+          src={
+            movie.backdrop_path
+              ? IMAGE_BASE_URL + movie.backdrop_path
+              : "/path/to/default-image.jpg"
+          }
+          alt={movie.title || "제목이 없습니다"}
           width={400}
           height={280}
           className="w-full h-[300px] object-cover rounded-lg"
@@ -30,6 +34,5 @@ function MovieCard({ movie }: MovieCardProps) {
     </Link>
   );
 }
-
 
 export default MovieCard;

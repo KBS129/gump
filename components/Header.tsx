@@ -48,7 +48,7 @@ function Header() {
   };
 
   return (
-    <header className="flex items-center p-4 border-b">
+    <header className="flex items-center p-4 border-b bg-black text-white">
       <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-[#80FF72] to-[#7EE8FA] bg-clip-text text-transparent font-cafe24">
         <Link href="/">gump</Link>
       </h1>
