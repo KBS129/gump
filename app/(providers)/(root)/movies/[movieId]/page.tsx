@@ -55,7 +55,7 @@ const MovieDetailPage = () => {
     enabled: !!movieId,
   });
 
-  if (isLoading) return <div>영화 정보를 불러오는 중...</div>;
+  if (isLoading) return <div>영화 정보를 불러오는 중..</div>;
   if (isError)
     return (
       <div>
@@ -89,7 +89,7 @@ const MovieDetailPage = () => {
                 {movie.tagline && (
                   <h2 className="text-lg md:text-2xl mt-2">{movie.tagline}</h2>
                 )}
-                <p className="text-base md:text-lg mt-4 md:mt-8">
+                <p className="text-base md:text-lg m't-4 md:mt-8">
                   {movie.overview}
                 </p>
                 <time className="mt-4 md:mt-8 text-sm text-white/60">
@@ -136,7 +136,7 @@ const MovieDetailPage = () => {
                         <p className="mt-2 text-xs md:text-base font-medium">
                           {actor.name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-300">
                           {actor.character}
                         </p>
                       </li>
