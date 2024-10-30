@@ -10,16 +10,18 @@ import {
   getMovieCredits,
   MovieDetail,
   Cast,
-} from "../../../api/tmdb.api";
+} from "../../../../../api/tmdb.api";
 import MovieReviewsList from "./_components/MovieReviewsList";
 import { FaRegComment } from "react-icons/fa6";
 import Rating from "@/components/Rating";
 import { useState } from "react";
+import { useModal } from "@/app/(providers)/(_providers)/ModalProvider";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 const MovieDetailPage = () => {
   const params = useParams();
+  const { openModal } = useModal();
   const movieId = params.movieId as string;
   const [clickedStars, setClickedStars] = useState<boolean[]>(
     new Array(5).fill(false)
@@ -104,7 +106,10 @@ const MovieDetailPage = () => {
                   ))}
                 </ul>
                 <div className="mt-8 md:mt-12 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-x-10">
-                  <button className="text-lg md:text-3xl bg-white text-black px-8 py-2 md:px-16 md:py-4 rounded-lg font-bold hover:brightness-90 active:brightness-75 transition flex items-center gap-x-2 md:gap-x-4">
+                  <button
+                    onClick={() => openModal("newReview")}
+                    className="text-lg md:text-3xl bg-white text-black px-8 py-2 md:px-16 md:py-4 rounded-lg font-bold hover:brightness-90 active:brightness-75 transition flex items-center gap-x-2 md:gap-x-4"
+                  >
                     <span>리뷰 남기기</span>
                     <FaRegComment />
                   </button>

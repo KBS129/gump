@@ -3,7 +3,18 @@
 import React, { useState } from "react";
 import { signInWithSupabase } from "@/api/supabase.api"; // signInWithSupabase 함수 import
 
-const LoginModal = ({ isOpen, toggleModal, setIsLoggedIn }) => {
+// Props의 타입 정의
+interface LoginModalProps {
+  isOpen: boolean; // isOpen의 타입을 boolean으로 설정
+  toggleModal: () => void; // toggleModal의 타입
+  setIsLoggedIn: (loggedIn: boolean) => void; // setIsLoggedIn의 타입
+}
+
+const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  toggleModal,
+  setIsLoggedIn,
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +38,7 @@ const LoginModal = ({ isOpen, toggleModal, setIsLoggedIn }) => {
       window.location.href = "/"; // 로그인 후 홈페이지로 리다이렉션
     } else {
       // 로그인 실패 시 에러 메시지 설정
-      setError(message); // 에러 메시지를 상태에 설정
+      setError(message || "알 수 없는 오류가 발생했습니다."); // 기본값 설정
       console.error(message);
     }
   };

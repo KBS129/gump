@@ -10,30 +10,27 @@ function Header() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
   };
 
   useEffect(() => {
-    if (isOpen) {
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-    } else {
-      document.documentElement.style.overflow = "auto";
-      document.body.style.overflow = "auto";
-    }
+    const manageOverflow = () => {
+      if (isOpen) {
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+      } else {
+        document.documentElement.style.overflow = "auto";
+        document.body.style.overflow = "auto";
+      }
+    };
+    manageOverflow();
   }, [isOpen]);
 
   const checkUserLoggedIn = async () => {
     const { success } = await getCurrentUser();
-    if (success) {
-      setIsLoggedIn(true);
-      setUserEmail(userEmail);
-    } else {
-      setIsLoggedIn(false);
-    }
+    setIsLoggedIn(success);
   };
 
   useEffect(() => {
@@ -44,7 +41,6 @@ function Header() {
     const { success, message } = await signOutUser();
     if (success) {
       setIsLoggedIn(false);
-      setUserEmail("");
       router.push("/");
     } else {
       console.error(message);
@@ -56,7 +52,6 @@ function Header() {
       <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-[#80FF72] to-[#7EE8FA] bg-clip-text text-transparent font-cafe24">
         <Link href="/">gump</Link>
       </h1>
-
       <nav className="flex items-center space-x-2 sm:space-x-4 ml-4">
         <Link href="/posts" className="text-base sm:text-lg">
           자유 게시판
