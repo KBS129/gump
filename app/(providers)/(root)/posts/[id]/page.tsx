@@ -5,16 +5,42 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/app/supabase"; // Supabase 클라이언트 import
 import Header from "@/components/Header";
 import { deletePost } from "@/api/supabase.api";
+import Image from "next/image"; // Image 컴포넌트 import
+
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  movie_name: string;
+  created_at: string;
+  views: number;
+  image_url?: string; // 추가된 이미지 URL 필드
+  video_url?: string; // 추가된 비디오 URL 필드
+  author_id: string; // 작성자 ID 추가
+};
+
+type User = {
+  id: string;
+  username?: string; // 선택적으로 변경
+};
+
+type Comment = {
+  id: number;
+  content: string;
+  created_at: string;
+  post_id: number;
+  author_id: User; // User 타입으로 설정
+};
 
 const PostDetailPage = () => {
   const router = useRouter();
-  const { id } = useParams();
-  const [post, setPost] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { id } = useParams<{ id: string }>();
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [comments, setComments] = useState<any[]>([]);
-  const [commentContent, setCommentContent] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentContent, setCommentContent] = useState<string>("");
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -23,13 +49,13 @@ const PostDetailPage = () => {
           .from("posts")
           .select("*")
           .eq("id", id)
-          .single();
+          .single<Post>();
 
         if (error) throw error;
 
         setPost(data);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        setError((error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -41,19 +67,18 @@ const PostDetailPage = () => {
         error,
       } = await supabase.auth.getUser();
       if (error) throw error;
-      setUser(user);
+      setUser(user as User); // User 타입으로 설정
     };
 
     const fetchComments = async () => {
       const { data, error } = await supabase
         .from("comments")
-        .select("*, author_id:users(id, username)") // users 테이블에서 username 가져오기
+        .select("*, author_id:users(id, username)")
         .eq("post_id", id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setComments(data || []);
-      // 로컬 스토리지에 댓글 저장
+      setComments((data as Comment[]) || []); // Comment 타입으로 설정
       localStorage.setItem(`comments-${id}`, JSON.stringify(data || []));
     };
 
@@ -63,38 +88,37 @@ const PostDetailPage = () => {
     }
     fetchUser();
 
-    // 댓글이 로컬 스토리지에 있으면 상태에 설정
     const savedComments = localStorage.getItem(`comments-${id}`);
     if (savedComments) {
       setComments(JSON.parse(savedComments));
     }
 
-    // 게시글 테이블에 대한 실시간 구독 설정
     const channel = supabase.channel("realtime:posts");
     channel
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "posts" },
-        (payload) => {
-          if (payload.new.id === id) {
+        (payload: { new: Post }) => {
+          // payload의 타입을 Post로 설정
+          if (payload.new.id === Number(id)) {
+            // id를 Number로 변환
             setPost(payload.new);
           }
         }
       )
       .subscribe();
 
-    // 댓글 테이블에 대한 실시간 구독 설정
     const commentsChannel = supabase
       .channel("realtime:comments")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments" },
-        (payload) => {
-          if (payload.new.post_id === id) {
-            // 새로운 댓글을 상태에 추가
+        (payload: { new: Comment }) => {
+          // payload의 타입을 Comment로 설정
+          if (payload.new.post_id === Number(id)) {
+            // id를 Number로 변환
             setComments((prevComments) => {
               const updatedComments = [payload.new, ...prevComments];
-              // 로컬 스토리지에 업데이트
               localStorage.setItem(
                 `comments-${id}`,
                 JSON.stringify(updatedComments)
@@ -120,34 +144,26 @@ const PostDetailPage = () => {
     }
 
     try {
-      const commentData = {
-        post_id: id,
-        author_id: user.id,
+      const commentData: Comment = {
+        id: Date.now(), // 임시 ID (데이터베이스에서 생성된 ID를 사용하지 않음)
+        post_id: Number(id),
+        author_id: { id: user!.id }, // User 타입으로 설정
         content: commentContent,
+        created_at: new Date().toISOString(),
       };
 
-      // 댓글 데이터 삽입
       const { error } = await supabase.from("comments").insert([commentData]);
       if (error) throw error;
 
-      // 새 댓글을 comments 상태에 추가
       setComments((prevComments) => {
-        const updatedComments = [
-          {
-            ...commentData,
-            id: Date.now(), // 임시 ID (데이터베이스에서 생성된 ID를 사용하지 않음)
-            created_at: new Date().toISOString(), // 현재 시간으로 생성
-          },
-          ...prevComments,
-        ];
-        // 로컬 스토리지에 업데이트
+        const updatedComments = [commentData, ...prevComments];
         localStorage.setItem(`comments-${id}`, JSON.stringify(updatedComments));
         return updatedComments;
       });
 
-      setCommentContent(""); // 댓글 작성 후 초기화
-    } catch (error: any) {
-      setError(error.message);
+      setCommentContent("");
+    } catch (error) {
+      setError((error as Error).message);
     }
   };
 
@@ -155,15 +171,11 @@ const PostDetailPage = () => {
     if (confirm("정말로 게시글을 삭제하시겠습니까?")) {
       try {
         await deletePost(Number(id));
-        if (error) throw error;
-
-        // 게시글 삭제 후 알림 표시
         alert("게시글이 삭제되었습니다.");
-        router.push("/posts"); // 삭제 후 목록으로 이동
-      } catch (error: any) {
-        // 에러 발생 시 알림 표시
-        alert(`게시글 삭제에 실패했습니다: ${error.message}`);
-        setError(error.message);
+        router.push("/posts");
+      } catch (error) {
+        alert(`게시글 삭제에 실패했습니다: ${(error as Error).message}`);
+        setError((error as Error).message);
       }
     }
   };
@@ -175,30 +187,28 @@ const PostDetailPage = () => {
           .from("comments")
           .delete()
           .eq("id", commentId)
-          .eq("author_id", user.id); // 댓글 작성자와 현재 로그인한 유저를 비교
+          .eq("author_id", user!.id);
 
         if (error) throw error;
 
-        // 삭제된 댓글 제외하고 상태 업데이트
         setComments((prevComments) => {
           const updatedComments = prevComments.filter(
             (comment) => comment.id !== commentId
           );
-          // 로컬 스토리지에 업데이트
           localStorage.setItem(
             `comments-${id}`,
             JSON.stringify(updatedComments)
           );
           return updatedComments;
         });
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        setError((error as Error).message);
       }
     }
   };
 
   const handleEditPost = () => {
-    if (user && user.id === post.author_id) {
+    if (user && user.id === post?.author_id) {
       router.push(`/posts/edit/${post.id}`);
     } else {
       alert("본인이 작성한 게시글만 수정할 수 있습니다.");
@@ -213,23 +223,25 @@ const PostDetailPage = () => {
       <Header />
       <div className="flex flex-col items-center min-h-screen bg-black p-4">
         <h1 className="text-3xl font-semibold mb-6 text-white">
-          {post.movie_name}
+          {post?.movie_name}
         </h1>
         <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
-          <p className="text-gray-700 mb-4">{post.content}</p>
+          <p className="text-gray-700 mb-4">{post?.content}</p>
           <p className="text-sm text-gray-500">
-            작성일: {new Date(post.created_at).toLocaleDateString()}
+            작성일: {new Date(post?.created_at || "").toLocaleDateString()}
           </p>
 
-          {post.image_url && (
-            <img
+          {post?.image_url && (
+            <Image
               src={post.image_url}
               alt={post.movie_name}
+              width={500} // 원하는 너비
+              height={300} // 원하는 높이
               className="w-full h-64 object-cover mb-4 rounded-lg"
             />
           )}
 
-          {post.video_url && (
+          {post?.video_url && (
             <video
               src={post.video_url}
               controls
@@ -245,7 +257,7 @@ const PostDetailPage = () => {
               목록으로 돌아가기
             </button>
 
-            {user && user.id === post.author_id && (
+            {user && user.id === post?.author_id && (
               <>
                 <button
                   onClick={handleEditPost}
@@ -263,67 +275,62 @@ const PostDetailPage = () => {
               </>
             )}
 
-            {user && user.id !== post.author_id && (
-              <p className="text-sm text-red-500">
-                본인이 작성한 게시글만 수정 및 삭제할 수 있습니다.
-              </p>
+            {user && user.id !== post?.author_id && (
+              <button
+                onClick={handleDeletePost}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+              >
+                삭제
+              </button>
             )}
           </div>
         </div>
 
-        {/* 댓글 표시 부분 */}
         <div className="mt-8 w-full max-w-2xl">
-          <h2 className="text-2xl font-semibold mb-4 text-white">댓글</h2>
+          <h2 className="text-2xl font-semibold text-white mb-4">댓글</h2>
+          <form onSubmit={handleCommentSubmit} className="flex">
+            <input
+              type="text"
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              placeholder="댓글을 입력하세요"
+              className="flex-1 p-2 border border-gray-300 rounded-l-md"
+            />
+            <button
+              type="submit"
+              className="px-4 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition"
+            >
+              등록
+            </button>
+          </form>
 
           {comments.length === 0 ? (
-            <p className="text-white">댓글이 없습니다.</p>
+            <p className="text-gray-500">댓글이 없습니다.</p>
           ) : (
-            <ul className="space-y-4">
-              {comments.map((comment) => (
-                <li
-                  key={comment.id}
-                  className="bg-white p-4 rounded-lg shadow-md"
-                >
-                  <p className="text-gray-700 mb-2">{comment.content}</p>
-                  <p className="text-sm text-gray-500">
-                    작성자: {comment.author_id.username || "익명"} |{" "}
-                    {new Date(comment.created_at).toLocaleString()}
-                  </p>
-
-                  {user && user.id === comment.author_id.id && (
-                    <button
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="text-red-500 text-sm"
-                    >
-                      삭제
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* 댓글 작성 폼 */}
-          {user ? (
-            <form onSubmit={handleCommentSubmit} className="mt-4 flex">
-              <input
-                type="text"
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="댓글을 입력하세요..."
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition"
+            comments.map((comment) => (
+              <div
+                key={comment.id}
+                className="flex justify-between items-center bg-gray-200 p-2 my-2 rounded-md"
               >
-                작성
-              </button>
-            </form>
-          ) : (
-            <p className="text-gray-600">
-              로그인 후 댓글을 작성할 수 있습니다.
-            </p>
+                <div>
+                  <span className="font-semibold">
+                    {comment.author_id.username}
+                  </span>
+                  <p>{comment.content}</p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(comment.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                {user && user.id === comment.author_id.id && (
+                  <button
+                    onClick={() => handleDeleteComment(comment.id)}
+                    className="text-red-500"
+                  >
+                    삭제
+                  </button>
+                )}
+              </div>
+            ))
           )}
         </div>
       </div>

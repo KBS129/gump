@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import Backdrop from "@/components/Backdrop";
 import { useId, useState } from "react"; // useState 추가
 import Rating from "@/components/Rating"; // Rating 컴포넌트 임포트
+import { useParams } from "next/navigation";
+import { useModal } from "@/app/(providers)/(_providers)/ModalProvider";
+import { createReview } from "@/api/supabase.api";
 
 function NewReviewModal() {
   const contentId = useId();
   const [content, setContent] = useState("");
   const { closeModal } = useModal();
   const params = useParams();
+  const [clicked, setClicked] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]); // 별점 상태 관리
 
   const handleReviewSubmit = async () => {
+    const rating = clicked.filter((value) => value).length;
+
     if (rating === 0 || !content) {
       alert("별점과 리뷰 내용을 모두 입력해주세요.");
       return;
@@ -23,7 +34,6 @@ function NewReviewModal() {
       content,
     };
 
-
     const result = await createReview(reviewData);
     if (result) {
       alert("리뷰가 성공적으로 등록되었습니다.");
@@ -31,19 +41,11 @@ function NewReviewModal() {
     } else {
       alert("리뷰 등록에 실패했습니다.");
     }
-  
-  const [clicked, setClicked] = useState<boolean[]>([
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]); // 별점 상태 관리
+  };
 
   const handleStarClick = (index: number) => {
     const newClicked = clicked.map((_, i) => i <= index); // 클릭한 별점 인덱스까지 true로 설정
     setClicked(newClicked);
-
   };
 
   return (

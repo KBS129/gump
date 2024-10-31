@@ -6,14 +6,20 @@ import { usePostStore } from "@/store/PostsStore";
 import { supabase } from "@/app/supabase";
 import Header from "@/components/Header";
 
+type User = {
+  id: string;
+  email: string;
+  // 필요한 추가 필드가 있으면 여기에 정의하세요
+};
+
 const PostNew = () => {
-  const [boardId, setBoardId] = useState(""); // board_id 입력 상태로 관리
-  const [movieName, setMovieName] = useState("");
-  const [content, setContent] = useState("");
+  const [boardId, setBoardId] = useState<string>(""); // board_id 입력 상태로 관리
+  const [movieName, setMovieName] = useState<string>("");
+  const [content, setContent] = useState<string>("");
   const [file, setFile] = useState<File | null>(null); // 이미지 또는 동영상 파일 상태로 관리
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보 상태
+  const [user, setUser] = useState<User | null>(null); // 현재 로그인한 사용자 정보 상태
   const router = useRouter();
   const addPost = usePostStore((state) => state.addPost); // Zustand에서 addPost 액션 가져오기
 
@@ -21,7 +27,7 @@ const PostNew = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
-      setUser(data.user); // 사용자 정보를 상태에 저장
+      setUser(data.user as User); // 사용자 정보를 상태에 저장
     };
 
     fetchUser();
@@ -39,16 +45,15 @@ const PostNew = () => {
     }
 
     try {
-      let imageUrl = null;
-      let videoUrl = null;
+      let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
 
       // 파일이 있다면 Supabase 스토리지에 업로드
       if (file) {
-        const fileExtension = file.name.split(".").pop();
         const isImage = file.type.startsWith("image/");
         const isVideo = file.type.startsWith("video/");
 
-        let path;
+        let path: string | undefined;
         if (isImage) {
           path = `images/${Date.now()}_${file.name}`;
         } else if (isVideo) {
@@ -93,7 +98,9 @@ const PostNew = () => {
 
       // 성공 시 메인 페이지로 이동
       router.push("/posts");
-    } catch (error: any) {
+    } catch (err) {
+      // 오류 처리에서 any 대신 Error 타입 사용
+      const error = err as Error; // err를 Error 타입으로 단언
       setError(error.message);
     } finally {
       setLoading(false);

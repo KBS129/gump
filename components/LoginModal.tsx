@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { signInWithSupabase } from "@/api/supabase.api"; // signInWithSupabase 함수 import
+import { signInWithSupabase } from "@/api/supabase.api"; // Supabase 로그인 함수 import
 
 // Props의 타입 정의
 interface LoginModalProps {
