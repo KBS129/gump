@@ -28,7 +28,7 @@ const Carousel = () => {
   }, []);
 
   return (
-    <div className="relative max-w-screen-lg mx-auto my-8 p-4">
+    <div className="relative max-w-screen-lg mx-auto my-8 p-4 bg-black text-white">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]} // 모듈 배열로 등록
         spaceBetween={10}
