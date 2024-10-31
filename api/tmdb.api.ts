@@ -10,6 +10,14 @@ const tmdbClient = axios.create({
 
 const jsonClient = axios.create({ baseURL: "http://localhost:3000" });
 
+// TMDB에서 반환되는 영화 객체의 타입 정의
+interface TMDBMovie {
+  id: number;
+  title: string;
+  backdrop_path: string;
+  tagline?: string; // tagline은 선택적 속성
+}
+
 // 영화 카테고리별 목록을 가져오는 함수
 export const getMoviesOnCategory = async (category: string): Promise<Movie[]> => {
   const validCategories = ['popular', 'top_rated', 'now_playing'];
@@ -22,7 +30,12 @@ export const getMoviesOnCategory = async (category: string): Promise<Movie[]> =>
 
   try {
     const response = await tmdbClient.get(url);
-    const movies = response.data.results;
+    const movies = response.data.results.map((movie: TMDBMovie) => ({
+      id: movie.id,
+      title: movie.title,
+      backdrop_path: movie.backdrop_path,
+      tagline: movie.tagline, // tagline 추가
+    }));
     return movies;
   } catch (error) {
     console.error("영화 가져오기 오류:", error);
@@ -94,6 +107,7 @@ export interface Movie {
   id: number;
   title: string;
   backdrop_path: string;
+  tagline?: string; // tagline을 선택적 속성으로 추가
 }
 
 export interface MovieDetail {
