@@ -12,8 +12,12 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        cafe24: ["Cafe24Ssurround", "sans-serif"], // Cafe24Ssurround 폰트 추가
+      },
     },
   },
   plugins: [],
 };
+
 export default config;
