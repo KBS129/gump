@@ -67,7 +67,7 @@ function MovieReviews() {
         const data = await getReviewsByMovieId(movieId);
         console.log("Fetched reviews:", data); // 데이터 확인
         setReviews(data); // data는 이제 항상 Review[] 타입
-      } catch (error) {
+      } catch {
         setError("리뷰를 불러오는 데 오류가 발생했습니다."); // 오류 처리
       } finally {
         setLoading(false);
