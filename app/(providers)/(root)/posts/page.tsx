@@ -4,19 +4,33 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/app/supabase";
 import Header from "@/components/Header";
-import LoginModal from "@/components/LoginModal"; // 로그인 모달 컴포넌트 임포트
+import LoginModal from "@/components/LoginModal";
 
 const POSTS_PER_PAGE = 5;
 
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  movie_name: string;
+  created_at: string;
+  views: number;
+};
+
+type User = {
+  email: string | null; // Allow email to be null
+} | null;
+
 const PostsPage = () => {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [topPosts, setTopPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [topPosts, setTopPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [showLoginModal, setShowLoginModal] = useState(false); // 로그인 모달 상태
-  const [user, setUser] = useState<any>(null); // 로그인된 사용자 정보
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [user, setUser] = useState<User>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // 로그인 상태 확인
   useEffect(() => {
@@ -24,7 +38,8 @@ const PostsPage = () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUser(user);
+      setUser(user ? { email: user.email || null } : null); // email이 undefined일 경우 null로 설정
+      setIsLoggedIn(!!user);
     };
 
     checkUser();
@@ -33,6 +48,7 @@ const PostsPage = () => {
   // 게시글 목록 불러오기
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true); // 로딩 상태 초기화
       try {
         const { data, error } = await supabase
           .from("posts")
@@ -41,8 +57,8 @@ const PostsPage = () => {
 
         if (error) throw error;
         setPosts(data || []);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        setError((error as { message?: string }).message || "Error fetching posts");
       } finally {
         setLoading(false);
       }
@@ -63,31 +79,14 @@ const PostsPage = () => {
 
         if (topError) throw topError;
 
-        setTopPosts(topData || []); // 랜덤으로 섞지 않고 직접 정렬된 데이터를 사용
-      } catch (error: any) {
-        setError(error.message);
+        setTopPosts(topData || []); // 정렬된 데이터를 사용
+      } catch (error) {
+        setError((error as { message?: string }).message || "Error fetching top posts");
       }
     };
 
     fetchTopPosts();
   }, [posts]);
-
-  // 새 글 작성 후 게시글 상태 업데이트
-  const handleNewPostSubmit = async (newPost) => {
-    try {
-      const { data, error } = await supabase
-        .from("posts")
-        .insert(newPost)
-        .single();
-
-      if (error) throw error;
-
-      // 새로운 글이 성공적으로 추가된 후 상태 업데이트
-      setPosts((prevPosts) => [data, ...prevPosts]);
-    } catch (error: any) {
-      console.error("게시글 작성 중 오류:", error.message);
-    }
-  };
 
   // 게시글 클릭 시 조회수 증가
   const handlePostClick = async (postId: number) => {
@@ -111,21 +110,19 @@ const PostsPage = () => {
 
       if (fetchError) throw fetchError;
       setPosts(updatedPosts || []);
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error) {
+      setError((error as { message?: string }).message || "Error incrementing views");
     }
   };
 
-  // 로그인 여부 확인 후 새 글 작성 페이지 이동 또는 로그인 모달 표시
   const handleNewPostClick = () => {
-    if (user) {
-      window.location.href = "/posts/new"; // 로그인이 되어 있을 경우 새 글 작성 페이지로 이동
+    if (isLoggedIn) {
+      window.location.href = "/posts/new";
     } else {
-      setShowLoginModal(true); // 로그인이 안 되어 있을 경우 로그인 모달 표시
+      setShowLoginModal(true);
     }
   };
 
-  // 모달 열고 닫기 토글 함수
   const toggleModal = () => setShowLoginModal(!showLoginModal);
 
   const paginatedPosts = posts.slice(
@@ -144,14 +141,11 @@ const PostsPage = () => {
     <>
       <Header />
       <div className="flex min-h-screen bg-black text-white overflow-hidden relative">
-        {/* 가운데 게시글 목록 */}
         <div className="flex-1 p-6 md:p-8 relative z-10">
-          <h1 className="text-4xl font-extrabold mb-8 text-white">
-            게시글 목록
-          </h1>
+          <h1 className="text-4xl font-extrabold mb-8 text-white">게시글 목록</h1>
           <button
             className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105"
-            onClick={handleNewPostClick} // 클릭 시 로그인 상태에 따라 동작
+            onClick={handleNewPostClick}
           >
             새 글 작성
           </button>
@@ -172,12 +166,6 @@ const PostsPage = () => {
                     <h2 className="font-bold text-2xl text-blue-400 hover:underline">
                       {post.movie_name}
                     </h2>
-                    {/* 내용 부분을 주석 처리하여 내용 숨기기 */}
-                    {/* <p className="text-gray-700 text-base mt-2">
-                      {post.content.length > 150
-                        ? `${post.content.substring(0, 150)}...`
-                        : post.content}
-                    </p> */}
                     <p className="text-sm text-gray-500 mt-4">
                       {new Date(post.created_at).toLocaleDateString()}
                     </p>
@@ -187,7 +175,10 @@ const PostsPage = () => {
             </ul>
           )}
 
-          {/* 페이지네이션 */}
+          {isLoggedIn && user && (
+            <p className="text-green-500">환영합니다, {user.email}님!</p>
+          )}
+
           <div className="flex justify-center mt-6 space-x-4">
             {[...Array(totalPages)].map((_, index) => (
               <button
@@ -205,11 +196,8 @@ const PostsPage = () => {
           </div>
         </div>
 
-        {/* 오른쪽 사이드바: 가장 많이 조회된 게시물 */}
         <div className="hidden md:block w-1/4 bg-white p-6 shadow-md rounded-lg z-10">
-          <h2 className="text-xl font-bold mb-4 text-black">
-            가장 많이 조회된 게시물
-          </h2>
+          <h2 className="text-xl font-bold mb-4 text-black">가장 많이 조회된 게시물</h2>
           {topPosts.length === 0 ? (
             <p className="text-gray-500 text-sm">게시물이 없습니다.</p>
           ) : (
@@ -228,8 +216,11 @@ const PostsPage = () => {
           )}
         </div>
       </div>
-      <LoginModal isOpen={showLoginModal} toggleModal={toggleModal} />{" "}
-      {/* 로그인 모달 추가 */}
+      <LoginModal
+        isOpen={showLoginModal}
+        toggleModal={toggleModal}
+        setIsLoggedIn={setIsLoggedIn} // Pass setIsLoggedIn prop
+      />
     </>
   );
 };

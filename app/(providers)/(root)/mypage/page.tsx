@@ -1,93 +1,80 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/api/supabase.api";
-import { getPosts } from "@/api/supabase.api";
-import { useRouter } from "next/navigation";
+import { supabase } from "@/app/supabase";
 import Header from "@/components/Header";
-import { usePostStore } from "@/store/PostsStore";
 
-function MyPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const posts = usePostStore((state) => state.posts); // Zustand에서 posts 가져오기
-  const setPosts = usePostStore((state) => state.setPosts); // Zustand에서 setPosts 액션 가져오기
+type Post = {
+  id: string;
+  board_id: string;
+  movie_name: string;
+  content: string;
+  image_url: string | null;
+  video_url: string | null;
+  author_id: string;
+};
+
+const MyPage = () => {
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUserPosts = async () => {
+    setLoading(true);
+    try {
+      // 현재 사용자 정보를 가져옴
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("author_id", user?.id); // user ID를 안전하게 가져옴
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setUserPosts(data as Post[]); // 데이터의 타입을 지정
+    } catch (err) {
+      const error = err instanceof Error ? err.message : "Unknown error"; // 타입 안전성 확보
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const { success, user } = await getCurrentUser();
-      if (success) {
-        setUser(user);
-        fetchUserPosts(user.id); // 사용자 ID로 게시글 가져오기
-      } else {
-        router.push("/login"); // 로그인 페이지로 이동
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
-
-  const fetchUserPosts = async (userId: string) => {
-    const allPosts = await getPosts();
-    const userPosts = allPosts
-      ? allPosts.filter((post) => post.author_id === userId)
-      : [];
-    setPosts(userPosts); // Zustand 상태에 게시글 설정
-  };
-
-  const handlePostClick = (postId: string) => {
-    router.push(`/posts/${postId}`); // 게시글 상세 페이지로 이동
-  };
+    fetchUserPosts(); // 사용자 게시글 가져오기
+  }, []); // 의존성 배열을 비워 사용자 게시글을 한 번만 가져옴
 
   return (
-    <>
-      <div className="bg-black text-white">
-        <Header />
-        <div className="p-6 min-h-screen bg-black text-white">
-          <h2 className="text-3xl font-bold text-center mb-6 text-white">
-            마이페이지
-          </h2>
-          {user ? (
-            <div className="bg-white shadow-md rounded-lg p-4">
-              <h3 className="text-2xl font-semibold text-gray-700">
-                사용자 정보
-              </h3>
-              <p className="text-lg text-gray-600">이메일: {user.email}</p>
+    <div className="bg-black">
+      <Header />
+      <div className="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-8 max-w-2xl">
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+          마이 페이지
+        </h1>
 
-              <h3 className="text-2xl font-semibold text-gray-700 mt-6">
-                내가 쓴 게시글
-              </h3>
-              {posts && posts.length > 0 ? (
-                <ul className="mt-4">
-                  {posts.map(
-                    (post) =>
-                      post && (
-                        <li
-                          key={post.id}
-                          className="border-b py-4 cursor-pointer hover:bg-gray-200"
-                          onClick={() => handlePostClick(post.id)} // 게시글 클릭 이벤트 추가
-                        >
-                          <h4 className="font-semibold text-lg text-blue-600">
-                            {post.movie_name || "제목 없음"}
-                          </h4>
-                          <p className="text-gray-600">
-                            {post.content || "내용 없음"}
-                          </p>
-                        </li>
-                      )
-                  )}
-                </ul>
-              ) : (
-                <p className="mt-4 text-gray-500">작성한 게시글이 없습니다.</p>
-              )}
-            </div>
-          ) : (
-            <p className="text-lg text-red-500">로그인 상태가 아닙니다.</p>
-          )}
-        </div>
+        {loading && <p className="text-center">로딩 중...</p>}
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+
+        {userPosts.length > 0 ? (
+          <ul>
+            {userPosts.map((post) => (
+              <li key={post.id} className="mb-4">
+                <h2 className="text-xl font-semibold">{post.movie_name}</h2>
+                <p>{post.content}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-center">작성한 게시글이 없습니다.</p>
+        )}
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default MyPage;
