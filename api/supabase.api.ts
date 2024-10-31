@@ -262,7 +262,6 @@ export const deleteComment = async (commentId: number) => {
 
 // 17. 리뷰 데이터 타입 정의
 interface ReviewData {
-  user_id: string; // 작성자 ID
   movie_id: string | number; // 영화 ID
   rating: number; // 별점
   content: string; // 리뷰 내용
@@ -274,7 +273,6 @@ export const createReview = async (reviewData: ReviewData) => {
     const { data, error } = await supabase
       .from("reviews")
       .insert({
-        user_id: reviewData.user_id,
         movie_id: reviewData.movie_id,
         rating: reviewData.rating,
         content: reviewData.content,
@@ -285,7 +283,7 @@ export const createReview = async (reviewData: ReviewData) => {
       throw new Error(error.message);
     }
 
-    return data;	
+    return data;
   } catch (error) {
     console.error("리뷰 생성 중 오류 발생: ", error);
     return null;

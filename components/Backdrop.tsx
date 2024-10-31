@@ -1,17 +1,25 @@
 "use client";
 
 import { useModal } from "@/app/(providers)/(_providers)/ModalProvider";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 
-function Backdrop(props: PropsWithChildren) {
+interface BackdropProps {
+  children: ReactNode;
+}
+
+function Backdrop({ children }: PropsWithChildren<BackdropProps>) {
   const { closeModal } = useModal();
+
+  const handleClick = () => {
+    closeModal();
+  };
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 bottom-0 bg-black/70 z-10 grid place-items-center"
-      onClick={() => closeModal()}
+      className="fixed inset-0 bg-black/70 z-10 grid place-items-center"
+      onClick={handleClick}
     >
-      {props.children}
+      {children}
     </div>
   );
 }
