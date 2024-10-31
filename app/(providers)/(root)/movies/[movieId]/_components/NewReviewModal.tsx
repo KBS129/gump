@@ -1,9 +1,21 @@
 import Backdrop from "@/components/Backdrop";
-import { useId } from "react";
-import { BsStarFill } from "react-icons/bs";
+import { useId, useState } from "react"; // useState 추가
+import Rating from "@/components/Rating"; // Rating 컴포넌트 임포트
 
 function NewReviewModal() {
   const contentId = useId();
+  const [clicked, setClicked] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]); // 별점 상태 관리
+
+  const handleStarClick = (index: number) => {
+    const newClicked = clicked.map((_, i) => i <= index); // 클릭한 별점 인덱스까지 true로 설정
+    setClicked(newClicked);
+  };
 
   return (
     <Backdrop>
@@ -14,14 +26,8 @@ function NewReviewModal() {
         {/* 별점 */}
         <div className="mb-10">
           <label className="text-sm font-bold inline-block mb-2">별점</label>
-
-          <div className="flex gap-x-2 mx-auto justify-center">
-            <BsStarFill className="text-4xl text-yellow-300" />
-            <BsStarFill className="text-4xl text-yellow-300" />
-            <BsStarFill className="text-4xl text-yellow-300" />
-            <BsStarFill className="text-4xl text-gray-700" />
-            <BsStarFill className="text-4xl text-gray-700" />
-          </div>
+          <Rating clicked={clicked} onStarClick={handleStarClick} />{" "}
+          {/* Rating 컴포넌트 사용 */}
         </div>
 
         {/* 리뷰 내용 */}
