@@ -41,6 +41,19 @@ const PostDetailPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentContent, setCommentContent] = useState<string>("");
+  const fetchComments = async () => {
+    const { data, error } = await supabase
+      .from("comments")
+      .select("*")
+      .eq("post_id", Number(id))
+      .order("created_at", { ascending: false });
+
+    console.log("data", data);
+
+    if (error) throw error;
+    setComments((data as Comment[]) || []); // Comment 타입으로 설정
+    localStorage.setItem(`comments-${id}`, JSON.stringify(data || []));
+  };
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -68,18 +81,6 @@ const PostDetailPage = () => {
       } = await supabase.auth.getUser();
       if (error) throw error;
       setUser(user as User); // User 타입으로 설정
-    };
-
-    const fetchComments = async () => {
-      const { data, error } = await supabase
-        .from("comments")
-        .select("*, author_id:users(id, username)")
-        .eq("post_id", id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setComments((data as Comment[]) || []); // Comment 타입으로 설정
-      localStorage.setItem(`comments-${id}`, JSON.stringify(data || []));
     };
 
     if (id) {
@@ -144,10 +145,8 @@ const PostDetailPage = () => {
     }
 
     try {
-      const commentData: Comment = {
-        id: Date.now(), // 임시 ID (데이터베이스에서 생성된 ID를 사용하지 않음)
+      const commentData = {
         post_id: Number(id),
-        author_id: { id: user!.id }, // User 타입으로 설정
         content: commentContent,
         created_at: new Date().toISOString(),
       };
@@ -155,11 +154,7 @@ const PostDetailPage = () => {
       const { error } = await supabase.from("comments").insert([commentData]);
       if (error) throw error;
 
-      setComments((prevComments) => {
-        const updatedComments = [commentData, ...prevComments];
-        localStorage.setItem(`comments-${id}`, JSON.stringify(updatedComments));
-        return updatedComments;
-      });
+      fetchComments();
 
       setCommentContent("");
     } catch (error) {
@@ -313,9 +308,7 @@ const PostDetailPage = () => {
                 className="flex justify-between items-center bg-gray-200 p-2 my-2 rounded-md"
               >
                 <div>
-                  <span className="font-semibold">
-                    {comment.author_id.username}
-                  </span>
+                  <span className="font-semibold">{"사용자"}</span>
                   <p>{comment.content}</p>
                   <p className="text-sm text-gray-500">
                     {new Date(comment.created_at).toLocaleDateString()}
