@@ -1,10 +1,26 @@
-# 영화 리뷰 및 소개 웹 애플리케이션
+# 영화 리뷰 및 소개 웹 애플리케이션 (Gump)
 
-![프로젝트 로고](logo.png) <!-- 프로젝트 로고 이미지 -->
+![프로젝트 로고](https://github.com/KBS129/gump/blob/develop/logo.png)
 
 ## 소개
 
 이 프로젝트는 사용자가 영화에 대한 리뷰를 작성하고, 다른 사용자의 리뷰를 확인할 수 있는 웹 애플리케이션입니다. 사용자는 회원가입 및 로그인을 통해 개인적인 마이페이지에서 자신이 작성한 리뷰를 관리할 수 있으며, 다양한 영화를 검색하고 그에 대한 정보를 얻을 수 있습니다.
+
+## 팀원 소개
+
+이 프로젝트는 총 세 명의 팀원이 협력하여 개발하였습니다.
+
+- **이민재** - _디자인 담당_
+  디자인 레이아웃 담당, 애플리케이션의 비주얼과 레이아웃 구성 및 디자인 구현
+  이메일: [lmj1104701@gmail.com](mailto:lmj1104701@gmail.com)
+
+- **최동호** - _프론트엔드 담당_
+  애플리케이션 사용자 인터페이스 구현 담당. 컴포넌트 구조 설계 및 API 이용 데이터 처리
+  이메일: [studydongho0429@gmail.com](mailto:studydongho0429@gmail.com)
+
+- **윤성민** - _프론트엔드 및 백엔드 담당_
+  프론트엔드와 함께 Supabase를 이용한 데이터베이스 설계 및 API를 통한 애플리케이션 데이터 인증 및 흐름 관리
+  이메일: [naruoto43@gmail.com](mailto:naruoto43@gmail.com)
 
 ## 기능
 
@@ -21,8 +37,8 @@
   - TypeScript (정적 타입 검사)
   - Tailwind CSS (스타일링 프레임워크)
   - Zustand (상태 관리 라이브러리)
-  
 - **백엔드**
+
   - Supabase (PostgreSQL 데이터베이스 및 인증 서비스)
   - TMDB API (영화 정보 API)
 
@@ -63,4 +79,14 @@
 │   ├── layout.tsx                  # 전체 레이아웃 컴포넌트
 │   ├── globals.css                  # 전역 스타일
 │   └── supabase.ts                 # Supabase 클라이언트 설정
-└── 📂 components                    # 재사용 가능한 UI 컴포넌트
+├── 📂 components                    # 재사용 가능한 UI 컴포넌트
+│   ├── Backdrop.tsx                 # 모달이나 드롭다운 등 배경을 흐리게 하는 컴포넌트
+│   ├── Header.tsx                   # 사이트의 상단 헤더로, 내비게이션 바와 로고를 포함
+│   ├── LikeMovieButton.tsx          # 영화에 좋아요를 표시하고, 클릭 시 상태를 변경하는 버튼
+│   ├── LoginModal.tsx               # 로그인 폼을 포함한 모달 컴포넌트
+│   ├── MovieCard.tsx                # 영화 정보를 카드 형식으로 표시하는 컴포넌트
+│   ├── MovieCarousel.tsx             # 여러 영화를 슬라이드 형태로 보여주는 캐러셀 컴포넌트
+│   ├── MovieList.tsx                # 영화 목록을 리스트 형식으로 표시하는 컴포넌트
+│   ├── page.tsx                     # 특정 페이지에서 사용하는 컴포넌트
+│   └── Rating.tsx                   # 영화의 평점을 표시하는 컴포넌트
+```
