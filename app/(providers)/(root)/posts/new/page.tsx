@@ -13,7 +13,6 @@ type User = {
 };
 
 const PostNew = () => {
-  const [boardId, setBoardId] = useState<string>(""); // board_id 입력 상태로 관리
   const [movieName, setMovieName] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [file, setFile] = useState<File | null>(null); // 이미지 또는 동영상 파일 상태로 관리
@@ -82,7 +81,6 @@ const PostNew = () => {
       const { data: postData, error: postError } = await supabase
         .from("posts")
         .insert({
-          board_id: boardId, // board_id 추가
           movie_name: movieName,
           content: content,
           image_url: imageUrl,
@@ -118,20 +116,6 @@ const PostNew = () => {
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <label className="block text-sm font-semibold text-gray-600 mb-2">
-              게시판 제목
-            </label>
-            <input
-              type="text"
-              value={boardId}
-              onChange={(e) => setBoardId(e.target.value)}
-              className="p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-              placeholder="게시판 제목을 입력하세요"
-              required
-            />
-          </div>
-
           <div className="relative">
             <label className="block text-sm font-semibold text-gray-600 mb-2">
               영화 이름
